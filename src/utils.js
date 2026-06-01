@@ -26,4 +26,3 @@ module.exports = {
   comparePassword,
   generateJWT,
 };
-MY 
