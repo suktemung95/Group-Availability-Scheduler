@@ -1,0 +1,20 @@
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "username": "LickWidFyre",
+    "password": "password"
+}
+
+###
+POST http://localhost:3000/user/schedule
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgwNTkzNzk1LCJleHAiOjE3ODA1OTczOTV9.2R_aOUCcFSq41l2v4M9zOZu2rJhgxNQHIfOwVFmGKHU
+Content-Type: application/json
+
+{
+  "dow": 1,
+  "start": "18:00:00-04:00",
+  "end": "22:00:00-04:00",
+  "block_type": "busy",
+  "label": "Volleyball"
+}

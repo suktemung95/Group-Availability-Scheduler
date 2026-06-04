@@ -1,5 +1,5 @@
 const runQuery = require("../db/pool");
-const utils = require("../utils/utils");
+const utils = require("../utils");
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;

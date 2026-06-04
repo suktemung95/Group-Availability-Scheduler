@@ -7,6 +7,7 @@ const middleware = require("../middleware/middleware")
 router.get("/schedule", middleware, userCon.getSchedule)
 router.get("/groups", middleware, userCon.getGroups)
 router.post("/schedule", middleware, userCon.postSchedule)
-router.post("/group", middleware, userCon.postGroup)
+router.post("/groups", middleware, userCon.postGroup)
+router.post("/groups/:groupId/join", middleware, userCon.joinGroup)
 
 module.exports = router

@@ -1,3 +1,4 @@
+const e = require("express")
 const runQuery = require("../db/pool")
 
 exports.getSchedule = async (req, res) => {
@@ -34,9 +35,9 @@ exports.getGroups = async (req, res) => {
     try {
 
         const id = req.user.userId
-        query = ```SELECT group_id FROM group_members 
-        WHERE user_id = $1 ORDER BY ASC```
-        values = [id]
+        const query = `SELECT * FROM group_members 
+        WHERE user_id = $1 ORDER BY group_id ASC`
+        const values = [id]
 
         const result = await runQuery(query, values)
 
@@ -50,17 +51,22 @@ exports.getGroups = async (req, res) => {
             pagination: "TBD"
         })
     } catch (err) {
-        return res.status(500).json({ error: "Database Error"})
+        return res.status(500).json({
+            error: "Database Error"
+        })
     }
 }
 
 exports.postSchedule = async (req, res) => {
 
     try {
-        const validBlockTypes = ["free", "busy", "tentative", "private"];
+        const validBlockTypes = ["free", "busy", "tentative", "private", "other"];
         const id = req.user.userId
         const { dow, start, end, block_type, label } = req.body
 
+        if (dow < 0 || dow > 6) {
+            return res.status(422).json({ error: "Invalid DOW"})
+        }
         if (end <= start) {
             return res.status(422).json({ error: "Invalid times" })
         }
@@ -93,3 +99,60 @@ exports.postSchedule = async (req, res) => {
         return res.status(500).json({ error: "Database error" })
     }
 }
+
+exports.postGroup = async (req, res) => {
+
+    try {
+        // make group
+        const user_id = req.user.userId
+        const { name } = req.body
+        const makeQuery = `INSERT INTO groups (name, created_by)
+        VALUES ($1, $2) RETURNING *`
+        let values = [name, user_id]
+        const makeResult = await runQuery(makeQuery, values)
+        const group_id = makeResult.rows[0].id
+        
+        // add self to group
+        const addQuery = `INSERT INTO group_members (group_id, user_id)
+        VALUES ($1, $2) RETURNING *`
+        values = [group_id, user_id]
+        const result = await runQuery(addQuery, values)
+        return res.status(201).json({
+            data: result.rows[0],
+            group: makeResult.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: "Database error"
+        })
+    }
+}
+
+exports.joinGroup = async (req, res) => {
+
+    try {
+        const user_id = req.user.userId
+        const group_id = req.params.groupId
+
+        const values = [group_id, user_id]
+        const query = `INSERT INTO group_members (group_id, user_id)
+            VALUES ($1, $2)
+            ON CONFLICT (group_id, user_id) DO NOTHING
+            RETURNING *`
+        const result = await runQuery(query, values)
+
+        if (result.rows.length === 0) {
+            return res.status(409).json({
+                error: "User is already a member of this group"
+            });
+        }
+            
+        return res.status(201).json({
+            success: "Added member to group",
+            data: result.rows[0]
+        })
+    } catch (err) {
+        return res.status(500).json({ error: "Database error" })
+    }
+}
+
