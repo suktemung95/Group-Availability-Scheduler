@@ -1,5 +1,6 @@
 const e = require("express")
 const runQuery = require("../db/pool")
+const userServices = require("../services/user.services")
 
 exports.getSchedule = async (req, res) => {
     
@@ -156,3 +157,14 @@ exports.joinGroup = async (req, res) => {
     }
 }
 
+exports.getOverlap = async (req, res) => {
+    
+    const user1 = Number(req.user.userId)
+    const user2 = Number(req.params.userId)
+
+    const freeBlocks = await userServices.getUserOverlap(user1, user2)
+
+    return res.status(200).json({
+        freeBlocks: freeBlocks
+    })
+}
