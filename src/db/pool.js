@@ -9,7 +9,7 @@ const pool = new Pool({
 
 const runQuery = async (query, values) => {
   const result = await pool.query(query, values);
-  return result;
+  return result.rows;
 };
 
 module.exports = runQuery;

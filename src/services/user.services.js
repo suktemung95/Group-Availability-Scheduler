@@ -1,18 +1,10 @@
-const runQuery = require("../db/pool")
-exports.getUserOverlap = async (user1, user2) => {
-    const timeQuery = `SELECT user_id, day_of_week, start_time, end_time, block_type
-    FROM schedule_blocks WHERE user_id IN ($1, $2) 
-    AND block_type = 'free' ORDER BY day_of_week ASC, start_time ASC`
-    const timeValues = [user1, user2]
-
-    const result = await runQuery(timeQuery, timeValues)
-    const blocks = result.rows
+exports.findUserOverlap = (freeBlocks, user1, user2) => {
 
     let user1Blocks = []
     let user2Blocks = []
     
     // push values
-    for (const block of blocks) {
+    for (const block of freeBlocks) {
         const id = Number(block.user_id)
         const start_time = convertRawTimeToMinutes(block.start_time), end_time = convertRawTimeToMinutes(block.end_time)
         if (id === user1) {

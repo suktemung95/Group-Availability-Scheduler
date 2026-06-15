@@ -1,6 +1,7 @@
 const e = require("express")
 const runQuery = require("../db/pool")
 const userServices = require("../services/user.services")
+const userPool = require("../db/user.db")
 
 exports.getSchedule = async (req, res) => {
     
@@ -15,13 +16,13 @@ exports.getSchedule = async (req, res) => {
 
         const result = await runQuery(query, values)
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(200).json({
                 data: []
             })
         }
 
-        const blocks = result.rows
+        const blocks = result
         return res.status(200).json({
             data: blocks,
             pagination: "TBD"
@@ -42,11 +43,11 @@ exports.getGroups = async (req, res) => {
 
         const result = await runQuery(query, values)
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(200).json({ data: [] })
         }
 
-        const groups = result.rows
+        const groups = result
         return res.status(200).json({
             data: groups,
             pagination: "TBD"
@@ -80,8 +81,7 @@ exports.postSchedule = async (req, res) => {
         FROM schedule_blocks WHERE user_id = $1 AND day_of_week = $2 AND $3 < end_time AND $4 > start_time`
         const conflictValues = [id, dow, start, end]
 
-        const conflictResult = await runQuery(conflictQuery, conflictValues)
-        const conflicts = conflictResult.rows
+        const conflicts = await runQuery(conflictQuery, conflictValues)
  
         if (conflicts.length === 0) {
             const insertQuery = `INSERT INTO schedule_blocks (user_id, day_of_week, start_time, end_time, block_type, label)
@@ -91,7 +91,7 @@ exports.postSchedule = async (req, res) => {
             const block = await runQuery(insertQuery, insertValues)
             return res.status(201).json({
                 success: "Added block to schedule",
-                data: block.rows[0]
+                data: block[0]
             })
         }
 
@@ -111,7 +111,7 @@ exports.postGroup = async (req, res) => {
         VALUES ($1, $2) RETURNING *`
         let values = [name, user_id]
         const makeResult = await runQuery(makeQuery, values)
-        const group_id = makeResult.rows[0].id
+        const group_id = makeResult[0].id
         
         // add self to group
         const addQuery = `INSERT INTO group_members (group_id, user_id)
@@ -119,8 +119,8 @@ exports.postGroup = async (req, res) => {
         values = [group_id, user_id]
         const result = await runQuery(addQuery, values)
         return res.status(201).json({
-            data: result.rows[0],
-            group: makeResult.rows[0]
+            data: result[0],
+            group: makeResult[0]
         })
     } catch (err) {
         return res.status(500).json({
@@ -142,7 +142,7 @@ exports.joinGroup = async (req, res) => {
             RETURNING *`
         const result = await runQuery(query, values)
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(409).json({
                 error: "User is already a member of this group"
             });
@@ -150,7 +150,7 @@ exports.joinGroup = async (req, res) => {
             
         return res.status(201).json({
             success: "Added member to group",
-            data: result.rows[0]
+            data: result[0]
         })
     } catch (err) {
         return res.status(500).json({ error: "Database error" })
@@ -162,9 +162,10 @@ exports.getOverlap = async (req, res) => {
     const user1 = Number(req.user.userId)
     const user2 = Number(req.params.userId)
 
-    const freeBlocks = await userServices.getUserOverlap(user1, user2)
+    const freeBlocks = await userPool.getTwoUserFreeBlocks(user1, user2)
+    const overlap = await userServices.findUserOverlap(freeBlocks, user1, user2)
 
     return res.status(200).json({
-        freeBlocks: freeBlocks
+        free_time: overlap
     })
 }
