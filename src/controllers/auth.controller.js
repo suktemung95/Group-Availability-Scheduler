@@ -49,11 +49,11 @@ exports.login = async (req, res) => {
 
   const result = await runQuery(query, values)
   
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     return res.status(401).json( {error: "Invalid login credentials"} )
   }
   
-  const user = result.rows[0]
+  const user = result[0]
   const isValidPassword = await utils.comparePassword(user, password)
 
   if (isValidPassword) {

@@ -1,71 +1,122 @@
 exports.findUserOverlap = (freeBlocks, user1, user2) => {
 
-    let user1Blocks = []
-    let user2Blocks = []
+    const user1Blocks = []
+    const user2Blocks = []
     
     // push values
     for (const block of freeBlocks) {
         const id = Number(block.user_id)
-        const start_time = convertRawTimeToMinutes(block.start_time), end_time = convertRawTimeToMinutes(block.end_time)
-        if (id === user1) {
-            user1Blocks.push(
-                {
-                    "dow": block.day_of_week,
-                    "start": start_time,
-                    "end": end_time
-                }
-            )
+        
+        const formattedBlock = {
+            dow: block.day_of_week,
+            start: convertRawTimeToMinutes(block.start_time),
+            end: convertRawTimeToMinutes(block.end_time),
+            users: [id]
         }
-        else if (id === user2) {
-            user2Blocks.push(
-                {
-                    "dow": block.day_of_week,
-                    "start": start_time,
-                    "end": end_time
-                }
-            )
+
+        if (id === user1) {
+            user1Blocks.push(formattedBlock)
+        } else if (id === user2) {
+            user2Blocks.push(formattedBlock)
         }
     }
-    
-    // find overlaps
-    let i = 0
-    let j = 0
-    let overlaps = []
 
-    while (i < user1Blocks.length && j < user2Blocks.length) {
-        const block1 = user1Blocks[i]
-        const block2 = user2Blocks[j]
+    const overlaps = overlapBlockArrays(user1Blocks, user2Blocks)
+
+    return overlaps.map(block => ({
+        dow: block.dow,
+        start: convertMinutesToRawTime(block.start),
+        end: convertMinutesToRawTime(block.end),
+        users: block.users
+    }))
+}
+
+exports.findGroupOverlap = (freeBlocks, memberIds) => {
+    memberIds = memberIds.map(Number);
+
+    const blocksByUser = {};
+
+    for (const memberId of memberIds) {
+        blocksByUser[memberId] = [];
+    }
+
+    for (const block of freeBlocks) {
+        const id = Number(block.user_id);
+
+        if (!blocksByUser[id]) continue;
+
+        blocksByUser[id].push({
+            dow: block.day_of_week,
+            start: convertRawTimeToMinutes(block.start_time),
+            end: convertRawTimeToMinutes(block.end_time),
+            users: [id]
+        });
+    }
+
+    if (memberIds.length === 0) {
+        return [];
+    }
+
+    let currentOverlaps = blocksByUser[memberIds[0]] || [];
+
+    for (let i = 1; i < memberIds.length; i++) {
+        const memberId = memberIds[i];
+        const memberBlocks = blocksByUser[memberId] || [];
+
+        currentOverlaps = overlapBlockArrays(currentOverlaps, memberBlocks);
+
+        if (currentOverlaps.length === 0) {
+            return [];
+        }
+    }
+
+    return currentOverlaps.map(block => ({
+        dow: block.dow,
+        start: convertMinutesToRawTime(block.start),
+        end: convertMinutesToRawTime(block.end),
+        users: block.users
+    }));
+};
+
+function overlapBlockArrays(blocksA, blocksB) {
+    let i = 0;
+    let j = 0;
+    const overlaps = [];
+
+    while (i < blocksA.length && j < blocksB.length) {
+        const block1 = blocksA[i];
+        const block2 = blocksB[j];
 
         if (block1.dow < block2.dow) {
-            i++
-            continue
-        }
-        if (block2.dow < block1.dow) {
-            j++
-            continue
+            i++;
+            continue;
         }
 
-        const overlapStart = Math.max(block1.start, block2.start)
-        const overlapEnd = Math.min(block1.end, block2.end)
+        if (block2.dow < block1.dow) {
+            j++;
+            continue;
+        }
+
+        const overlapStart = Math.max(block1.start, block2.start);
+        const overlapEnd = Math.min(block1.end, block2.end);
 
         if (overlapStart < overlapEnd) {
             overlaps.push({
                 dow: block1.dow,
-                start: convertMinutesToRawTime(overlapStart),
-                end: convertMinutesToRawTime(overlapEnd),
-                users: [user1, user2]
-                })
+                start: overlapStart,
+                end: overlapEnd,
+                users: [...block1.users, ...block2.users]
+            });
         }
 
         if (block1.end < block2.end) {
-            i++
-        }
-        else {
-            j++
+            i++;
+        } else {
+            j++;
         }
     }
 
-    return overlaps
+    return overlaps;
 }
 
 function convertRawTimeToMinutes(rawTime) {

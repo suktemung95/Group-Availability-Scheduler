@@ -5,4 +5,4 @@
 - fix time zones in user.services.converTime() *dont assume time zone*
 
 # next steps: 
-- refactor code to make unit tests
+- refactor all code

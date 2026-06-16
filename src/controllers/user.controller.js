@@ -32,7 +32,7 @@ exports.getSchedule = async (req, res) => {
     }
 }
 
-exports.getGroups = async (req, res) => {
+exports.getUserGroups = async (req, res) => {
 
     try {
 
@@ -163,9 +163,44 @@ exports.getOverlap = async (req, res) => {
     const user2 = Number(req.params.userId)
 
     const freeBlocks = await userPool.getTwoUserFreeBlocks(user1, user2)
-    const overlap = await userServices.findUserOverlap(freeBlocks, user1, user2)
+    const overlap = userServices.findUserOverlap(freeBlocks, user1, user2)
 
     return res.status(200).json({
         free_time: overlap
     })
+}
+
+exports.getGroupMembers = async (req, res) => {
+
+    try {
+        const groupId = Number(req.params.groupId)
+        const members = await userPool.getGroupMembers(groupId)
+
+        return res.status(200).json({ members: members })
+    } catch (err) {
+        return res.status(500).json({ error: "Database Error" })
+    }
+}
+
+exports.getGroupOverlap = async (req, res) => {
+
+    try {
+        const groupId = Number(req.params.groupId)
+        
+        const members = await userPool.getGroupMembers(groupId);
+        const memberIds = members.map(member => Number(member.user_id));
+
+        if (memberIds.length === 0) {
+            return res.status(404).json({ error: "Group has no members" });
+        }
+
+        const freeBlocks = await userPool.getGroupFreeBlocks(groupId);
+
+        const overlap = userServices.findGroupOverlap(freeBlocks, memberIds);
+        return res.status(200).json({
+            free_time: overlap
+        })
+    } catch (err) {
+        return res.status(500).json({ error: "Database Error" });
+    }
 }
