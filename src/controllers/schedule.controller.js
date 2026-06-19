@@ -1,5 +1,5 @@
 const runQuery = require("../db/pool")
-const userServices = require("../services/user.services")
+const utils = require("../utils")
 const userPool = require("../db/user.db")
 
 exports.getSchedule = async (req, res) => {

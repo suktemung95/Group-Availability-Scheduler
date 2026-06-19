@@ -3,7 +3,7 @@ const router = express.Router()
 
 const scheduleCon = require('../controllers/schedule.controller')
 
-router.get("/schedule", middleware, scheduleCon.getSchedule)
-router.post("/schedule", middleware, scheduleCon.postSchedule)
+router.get("/", middleware, scheduleCon.getSchedule)
+router.post("/", middleware, scheduleCon.postSchedule)
 
 module.exports = router
