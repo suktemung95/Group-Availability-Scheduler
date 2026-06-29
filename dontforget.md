@@ -6,3 +6,6 @@
 
 # next steps: 
 - refactor controllers
+- add DELETE and PATCH for schedule blocks
+- add LEAVE call for groups
+- GET /users/:userId/schedule for viewing another user's schedule IN same group
