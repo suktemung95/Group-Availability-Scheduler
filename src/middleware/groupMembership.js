@@ -26,4 +26,4 @@ async function verifyMembership(req, res, next) {
     }
 }
 
-module.exports = { verifyMembership }
+module.exports = verifyMembership

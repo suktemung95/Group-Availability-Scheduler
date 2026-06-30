@@ -12,6 +12,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwia
 Content-Type: application/json
 
 ###
-GET http://localhost:3000/user/1/overlap
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgxNTcyOTQ1LCJleHAiOjE3ODE1NzY1NDV9.ePto067_Ta5ZYY4GP-QN3u6PlJTQHG0sNoZJu-HoWIQ
+GET http://localhost:3000/schedule/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyODMzNjk2LCJleHAiOjE3ODI4MzcyOTZ9.3-CJmUGV7iL_Y7aT-YQP-JcKE4wDyJhCMz4_QbDT63w
 Content-Type: application/json
+
+###
+GET http://localhost:3000/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyODMzNjk2LCJleHAiOjE3ODI4MzcyOTZ9.3-CJmUGV7iL_Y7aT-YQP-JcKE4wDyJhCMz4_QbDT63w
+Content-Type: application/json
+
+###
+PATCH http://localhost:3000/schedule/11
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyODM1OTkxLCJleHAiOjE3ODI4Mzk1OTF9.6vD52T5ZG0QLrGIAOgpNJ5dycj1qh392Tdqn0zldZTc
+Content-Type: application/json
+
+{
+    "block_type": "tentative"
+}
