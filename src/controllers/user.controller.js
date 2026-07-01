@@ -1,6 +1,7 @@
 const runQuery = require("../db/pool")
 const utils = require("../utils")
 const userPool = require("../db/user.db")
+const userServices = require('../services/user.services')
 
 exports.getUserGroups = async (req, res) => {
 
@@ -30,14 +31,24 @@ exports.getUserGroups = async (req, res) => {
 }
 
 exports.getOverlap = async (req, res) => {
-    
-    const user1 = Number(req.user.userId)
-    const user2 = Number(req.params.userId)
+    try {
+        const user1 = Number(req.user.userId);
+        const user2 = Number(req.params.userId);
 
-    const freeBlocks = await userPool.getTwoUserFreeBlocks(user1, user2)
-    const overlap = userServices.findUserOverlap(freeBlocks, user1, user2)
+        if (Number.isNaN(user2)) {
+            return res.status(400).json({ error: "Invalid user id" });
+        }
 
-    return res.status(200).json({
-        free_time: overlap
-    })
-}
+        const freeBlocks = await userPool.getTwoUserFreeBlocks(user1, user2);
+
+        const overlap = userServices.findGroupOverlap(freeBlocks, [user1, user2]);
+
+        return res.status(200).json({
+            free_time: overlap
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: "Database Error"
+        });
+    }
+};

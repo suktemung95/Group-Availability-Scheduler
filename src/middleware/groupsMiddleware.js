@@ -57,7 +57,44 @@ async function verifyOwnership(req, res, next) {
     }
 }
 
+async function verifySharedGroup(req, res, next) {
+    try {
+        const id = Number(req.user.userId)
+        const id2 = Number(req.params.userId)
+
+        if (Number.isNaN(id2)) {
+            return res.status(400).json({ error: "Invalid user id" });
+        }
+
+        const query = `
+            SELECT *
+            FROM group_members gm1
+            JOIN group_members gm2
+            ON gm1.group_id = gm2.group_id
+            WHERE gm1.user_id = $1 AND gm2.user_id = $2
+            `
+        const values = [id, id2]
+
+        const result = await runQuery(query, values)
+
+        console.log(result)
+
+        if (result.length === 0) {
+            return res.status(403).json({
+                error: "No shared groups",
+            })
+        }
+        next()
+    } catch (err) {
+        return res.status(500).json({
+            error: "Database Error",
+            details: err
+        })
+    }
+}
+
 module.exports = {
     verifyMembership,
-    verifyOwnership
+    verifyOwnership,
+    verifySharedGroup
 }

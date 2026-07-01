@@ -1,6 +1,7 @@
 const runQuery = require("../db/pool")
 const utils = require("../utils")
 const userPool = require("../db/user.db")
+const userServices = require("../services/user.services")
 
 exports.postGroup = async (req, res) => {
 
@@ -95,10 +96,13 @@ exports.getGroupMembers = async (req, res) => {
 }
 
 exports.getGroupOverlap = async (req, res) => {
-
     try {
-        const groupId = Number(req.params.groupId)
-        
+        const groupId = Number(req.params.groupId);
+
+        if (Number.isNaN(groupId)) {
+            return res.status(400).json({ error: "Invalid group id" });
+        }
+
         const members = await userPool.getGroupMembers(groupId);
         const memberIds = members.map(member => Number(member.user_id));
 
@@ -109,13 +113,16 @@ exports.getGroupOverlap = async (req, res) => {
         const freeBlocks = await userPool.getGroupFreeBlocks(groupId);
 
         const overlap = userServices.findGroupOverlap(freeBlocks, memberIds);
+
         return res.status(200).json({
             free_time: overlap
-        })
+        });
     } catch (err) {
-        return res.status(500).json({ error: "Database Error" });
+        return res.status(500).json({
+            error: "Database Error"
+        });
     }
-}
+};
 
 exports.inviteUser = async (req, res) => {
     try {
