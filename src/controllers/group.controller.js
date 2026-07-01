@@ -58,6 +58,30 @@ exports.joinGroup = async (req, res) => {
     }
 }
 
+exports.leaveGroup = async (req, res) => {
+    try {
+        const id = req.user.userId
+        const groupId = Number(req.params.groupId)
+
+        const query = `
+            DELETE FROM group_members
+            WHERE user_id = $1 AND group_id = $2
+            RETURNING *
+        `
+        const values = [id, groupId]
+
+        const result = await runQuery(query, values)
+
+        return res.status(200).json({
+            success: "User successfully removed from group",
+            data: result[0]
+        })
+
+    } catch (err) {
+        return res.status(500).json({ error: "Database error" })
+    }
+}
+
 exports.getGroupMembers = async (req, res) => {
 
     try {

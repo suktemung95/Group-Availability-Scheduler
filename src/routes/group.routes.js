@@ -7,7 +7,7 @@ const groupMembershipMiddleware = require("../middleware/groupMembership")
 
 router.post("/", middleware, groupCon.postGroup)
 router.post("/:groupId/join", middleware, groupCon.joinGroup)
+router.post("/:groupId/leave", middleware, groupMembershipMiddleware, groupCon.leaveGroup)
 router.get("/:groupId/members", middleware, groupMembershipMiddleware, groupCon.getGroupMembers)
 router.get("/:groupId/overlap", middleware, groupMembershipMiddleware, groupCon.getGroupOverlap)
-
 module.exports = router

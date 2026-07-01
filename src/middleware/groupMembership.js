@@ -17,7 +17,7 @@ async function verifyMembership(req, res, next) {
 
         const result = await runQuery(query, values)
 
-        if (result.rows.length === 0) {
+        if (result.length === 0) {
             return res.status(403).json({ error: "User is not a member of group" });
         }
         next()
