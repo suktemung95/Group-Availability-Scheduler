@@ -116,3 +116,27 @@ exports.getGroupOverlap = async (req, res) => {
         return res.status(500).json({ error: "Database Error" });
     }
 }
+
+exports.inviteUser = async (req, res) => {
+    try {
+        const inviter = req.user.userId
+        const invitee = req.params.userId
+        const groupId = req.params.groupId
+
+        const query = `
+            INSERT INTO group_invites (inviter_id, invitee_id, group_id)
+            VALUES ($1, $2, $3)
+            RETURNING *`
+        const values = [inviter, invitee, groupId]
+
+        const result = await runQuery(query, values)
+
+        if (result.length === 0) {
+            return res.status(400).json({ error: "Failed to invite user" })
+        }
+        
+        return res.status(200).json({ success: "Successfully invited user to group"})
+    } catch (err) {
+        return res.status(500).json({ error: "Database error"})
+    }
+}

@@ -29,3 +29,10 @@ Content-Type: application/json
 {
     "block_type": "tentative"
 }
+
+###
+POST http://localhost:3000/groups/1/invite/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyOTE4MjkyLCJleHAiOjE3ODI5MjE4OTJ9.Pw2vbTy76MpyQ8Woyj8ad_29ZMITF-zclT_WlCxkpKo
+Content-Type: application/json
+
+###

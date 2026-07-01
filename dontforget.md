@@ -5,6 +5,7 @@
 - fix time zones in user.services.convertTime() *dont assume time zone*
 - when leaving a group, check if they are the owner
 - move all DB calls into ./db
+- add accept, decline, and cancel invite for groups (no more join?)
 
 # next steps: 
 - refactor controllers
