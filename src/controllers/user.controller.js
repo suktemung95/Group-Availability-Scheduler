@@ -8,11 +8,7 @@ exports.getUserGroups = async (req, res) => {
     try {
 
         const id = req.user.userId
-        const query = `SELECT * FROM group_members 
-        WHERE user_id = $1 ORDER BY group_id ASC`
-        const values = [id]
-
-        const result = await runQuery(query, values)
+        const result = userPool.getUserGroups(id)
 
         if (result.length === 0) {
             return res.status(200).json({ data: [] })

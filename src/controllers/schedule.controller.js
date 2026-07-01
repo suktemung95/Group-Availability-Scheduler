@@ -1,6 +1,6 @@
-const runQuery = require("../db/pool")
 const utils = require("../utils")
 const userPool = require("../db/user.db")
+const schedulePool = require('../db/schedule.db')
 const { validateScheduleInput, findScheduleConflicts } = require("../services/schedule.services")
 
 exports.getSchedule = async (req, res) => {
@@ -8,13 +8,7 @@ exports.getSchedule = async (req, res) => {
     try {
         const id = req.user.userId
 
-        query = `SELECT * FROM schedule_blocks
-            WHERE user_id = $1
-            ORDER BY day_of_week ASC, start_time ASC
-            `
-        values = [id]
-
-        const result = await runQuery(query, values)
+        const result = await schedulePool.getSchedule([id])
 
         if (result.length === 0) {
             return res.status(200).json({
@@ -55,13 +49,8 @@ exports.postSchedule = async (req, res) => {
             return res.status(409).json({ error: "Schedule block overlaps with an existing block"})
         }
 
-        const insertQuery = `
-            INSERT INTO schedule_blocks (user_id, day_of_week, start_time, end_time, block_type, label)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *
-        `
-        const insertValues = [id, dow, start, end, block_type, label]
-        const result = await runQuery(insertQuery, insertValues)
+        const result = await schedulePool.postSchedule([id, dow, start, end, block_type, label])
+        
         return res.status(201).json({
             success: "Added block to schedule",
             data: result[0]
@@ -82,14 +71,8 @@ exports.deleteSchedule = async (req, res) => {
             return res.status(400).json({ error: "Invalid block id" });
         }
 
-        const query = `
-            DELETE FROM schedule_blocks
-            WHERE user_id = $1 AND id = $2
-            RETURNING *
-            `
-        const values = [id, blockId]
-
-        const result = await runQuery(query, values)
+        const result = await schedulePool.deleteSchedule([id, blockId])
+        
 
         if (result.length === 0) {
             return res.status(404).json({ error: "Schedule block not found" })
@@ -114,19 +97,13 @@ exports.patchSchedule = async (req, res) => {
             return res.status(400).json({ error: "Invalid block id" });
         }
 
-        const getQuery = `
-            SELECT *
-            FROM schedule_blocks
-            WHERE id = $1 AND user_id = $2
-        `;
-        const getValues = [blockId, id]
-        const getResult = await runQuery(getQuery, getValues);
+        const block = await schedulePool.getBlock([blockId, id])
 
-        if (getResult.length === 0) {
+        if (block.length === 0) {
             return res.status(404).json({ error: "Schedule block not found" });
         }
 
-        const existing = getResult[0]
+        const existing = block[0]
 
         const newDow = dow ?? existing.day_of_week;
         const newStart = start ?? existing.start_time;
@@ -157,18 +134,7 @@ exports.patchSchedule = async (req, res) => {
             return res.status(409).json({ error: "Schedule block overlaps with an existing block" });
         }
 
-        const updateQuery = `
-            UPDATE schedule_blocks
-            SET day_of_week = $1,
-                start_time = $2,
-                end_time = $3,
-                block_type = $4,
-                label = $5
-            WHERE id = $6 AND user_id = $7
-            RETURNING *
-        `;
-
-        const updateValues = [
+        const result = await schedulePool.updateSchedule([
             newDow,
             newStart,
             newEnd,
@@ -176,9 +142,7 @@ exports.patchSchedule = async (req, res) => {
             newLabel,
             blockId,
             id
-        ];
-
-        const updateResult = await runQuery(updateQuery, updateValues);
+        ])
 
         return res.status(200).json({
             success: "Schedule block updated",

@@ -5,8 +5,8 @@ async function hashPassword(password) {
   const passwordHash = await bcrypt.hash(password, 10);
   return passwordHash;
 }
-async function comparePassword(user, password) {
-  const isValid = await bcrypt.compare(password, user.password_hash);
+async function comparePassword(password, passwordHash) {
+  const isValid = await bcrypt.compare(password, passwordHash);
   return isValid;
 }
 

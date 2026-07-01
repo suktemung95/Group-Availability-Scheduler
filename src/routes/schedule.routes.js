@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-const middleware = require("../middleware/middleware")
+const auth = require("../middleware/auth")
 const scheduleCon = require('../controllers/schedule.controller')
 
-router.get("/", middleware, scheduleCon.getSchedule)
-router.post("/", middleware, scheduleCon.postSchedule)
-router.delete("/:blockId", middleware, scheduleCon.deleteSchedule)
-router.patch("/:blockId", middleware, scheduleCon.patchSchedule)
+router.get("/", auth, scheduleCon.getSchedule)
+router.post("/", auth, scheduleCon.postSchedule)
+router.delete("/:blockId", auth, scheduleCon.deleteSchedule)
+router.patch("/:blockId", auth, scheduleCon.patchSchedule)
 
 module.exports = router

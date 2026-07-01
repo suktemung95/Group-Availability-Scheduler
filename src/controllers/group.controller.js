@@ -1,6 +1,4 @@
-const runQuery = require("../db/pool")
-const utils = require("../utils")
-const userPool = require("../db/user.db")
+const groupPool = require("../db/group.db")
 const userServices = require("../services/user.services")
 
 exports.postGroup = async (req, res) => {
@@ -9,20 +7,14 @@ exports.postGroup = async (req, res) => {
         // make group
         const user_id = req.user.userId
         const { name } = req.body
-        const makeQuery = `INSERT INTO groups (name, created_by)
-        VALUES ($1, $2) RETURNING *`
-        let values = [name, user_id]
-        const makeResult = await runQuery(makeQuery, values)
-        const group_id = makeResult[0].id
+        const groupResult = await groupPool.makeGroup([name, user_id])
+        const group_id = groupResult[0].id
         
         // add self to group
-        const addQuery = `INSERT INTO group_members (group_id, user_id)
-        VALUES ($1, $2) RETURNING *`
-        values = [group_id, user_id]
-        const result = await runQuery(addQuery, values)
+        const result = await groupPool.joinGroup([group_id, user_id, 'owner'])
         return res.status(201).json({
             data: result[0],
-            group: makeResult[0]
+            group: groupResult[0]
         })
     } catch (err) {
         return res.status(500).json({
@@ -37,12 +29,7 @@ exports.joinGroup = async (req, res) => {
         const user_id = req.user.userId
         const group_id = req.params.groupId
 
-        const values = [group_id, user_id]
-        const query = `INSERT INTO group_members (group_id, user_id)
-            VALUES ($1, $2)
-            ON CONFLICT (group_id, user_id) DO NOTHING
-            RETURNING *`
-        const result = await runQuery(query, values)
+        const result = await groupPool.joinGroup([group_id, user_id, 'member'])
 
         if (result.length === 0) {
             return res.status(409).json({
@@ -64,14 +51,7 @@ exports.leaveGroup = async (req, res) => {
         const id = req.user.userId
         const groupId = Number(req.params.groupId)
 
-        const query = `
-            DELETE FROM group_members
-            WHERE user_id = $1 AND group_id = $2
-            RETURNING *
-        `
-        const values = [id, groupId]
-
-        const result = await runQuery(query, values)
+        const result = await groupPool.leaveGroup([id, groupId])
 
         return res.status(200).json({
             success: "User successfully removed from group",
@@ -87,7 +67,7 @@ exports.getGroupMembers = async (req, res) => {
 
     try {
         const groupId = Number(req.params.groupId)
-        const members = await userPool.getGroupMembers(groupId)
+        const members = await groupPool.getGroupMembers([groupId])
 
         return res.status(200).json({ members: members })
     } catch (err) {
@@ -103,14 +83,14 @@ exports.getGroupOverlap = async (req, res) => {
             return res.status(400).json({ error: "Invalid group id" });
         }
 
-        const members = await userPool.getGroupMembers(groupId);
+        const members = await groupPool.getGroupMembers([groupId]);
         const memberIds = members.map(member => Number(member.user_id));
 
         if (memberIds.length === 0) {
             return res.status(404).json({ error: "Group has no members" });
         }
 
-        const freeBlocks = await userPool.getGroupFreeBlocks(groupId);
+        const freeBlocks = await groupPool.getGroupFreeBlocks([groupId]);
 
         const overlap = userServices.findGroupOverlap(freeBlocks, memberIds);
 
@@ -130,13 +110,7 @@ exports.inviteUser = async (req, res) => {
         const invitee = req.params.userId
         const groupId = req.params.groupId
 
-        const query = `
-            INSERT INTO group_invites (inviter_id, invitee_id, group_id)
-            VALUES ($1, $2, $3)
-            RETURNING *`
-        const values = [inviter, invitee, groupId]
-
-        const result = await runQuery(query, values)
+        const result = await groupPool.makeInvite([inviter, invitee, groupId])
 
         if (result.length === 0) {
             return res.status(400).json({ error: "Failed to invite user" })

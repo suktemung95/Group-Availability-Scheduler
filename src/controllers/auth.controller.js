@@ -1,5 +1,6 @@
 const runQuery = require("../db/pool");
 const utils = require("../utils");
+const authPool = require('../db/auth.db')
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
@@ -10,10 +11,9 @@ exports.register = async (req, res) => {
 
   try {
     // validate not existing user
-    let query = `SELECT id FROM users WHERE username = $1`;
-    let values = [username];
-    let result = await runQuery(query, values);
-    if (result.rows.length > 0) {
+    const user = await authPool.getUserByName([username])
+    
+    if (user.length > 0) {
       return res.status(409).json({ error: "User already exists" });
     }
 
@@ -21,13 +21,13 @@ exports.register = async (req, res) => {
     const passwordHash = await utils.hashPassword(password);
 
     // insert user into database
-    query = `INSERT INTO users (created_at, username, password_hash)
-        VALUES (NOW(), $1, $2)`;
-    values = [username, passwordHash];
-    result = await runQuery(query, values);
+    const result = await authPool.createUser([username, passwordHash])
 
     // return success
-    res.status(201).json({ message: "Account Registered Successfully!" });
+    res.status(201).json({
+      message: "Account Registered Successfully!",
+      data: result[0]
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Something went wrong" });
@@ -35,33 +35,32 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: "Invalid Input" });
+    }
 
-  if (!username || !password) {
-    return res.status(400).json({ error: "Invalid Input" });
+    // get password for username in database
+    const result = await authPool.getUserByName([username])
+      
+    if (result.length === 0) {
+      return res.status(401).json({ error: "Invalid login credentials" })
+    }
+      
+    const user = result[0]
+    const isValidPassword = await utils.comparePassword(password, user.password_hash)
+
+    if (isValidPassword) {
+      const token = utils.generateJWT(user)
+      return res.status(200).json({
+        message: "Login Successful",
+        token: token
+      })
+    }
+    return res.status(401).json({ error: "Invalid login credentials" })
+  } catch (err) {
+    return res.status(500).json({ error: "Database error"})
   }
-
-  // get password for username in database
-  const query = `SELECT id, username, password_hash FROM users
-  WHERE username = $1`
-  const values = [username]
-
-  const result = await runQuery(query, values)
-  
-  if (result.length === 0) {
-    return res.status(401).json( {error: "Invalid login credentials"} )
-  }
-  
-  const user = result[0]
-  const isValidPassword = await utils.comparePassword(user, password)
-
-  if (isValidPassword) {
-    const token = utils.generateJWT(user)
-    return res.status(200).json({
-      message: "Login Successful",
-      token: token
-    })
-  }
-  return res.status(401).json({ error: "Invalid login credentials" })
 }
