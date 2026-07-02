@@ -10,6 +10,7 @@ const authRoutes = require("./routes/auth.routes")
 const userRoutes = require("./routes/user.routes")
 const groupRoutes = require("./routes/group.routes")
 const scheduleRoutes = require("./routes/schedule.routes")
+const inviteRoutes = require("./routes/invite.routes")
 
 const auth = require("./middleware/auth")
 
@@ -17,6 +18,7 @@ app.use("/auth", authRoutes)
 app.use("/users", userRoutes)
 app.use("/groups", groupRoutes)
 app.use("/schedule", scheduleRoutes)
+app.use("/invites", inviteRoutes)
 
 app.get("/me", auth, (req, res) => {
     res.status(200).json({ user: req.user.userId })

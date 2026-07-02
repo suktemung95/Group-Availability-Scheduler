@@ -7,10 +7,10 @@ exports.makeGroup = async (values) => {
 }
 
 exports.joinGroup = async (values) => {
-    const q = `
+    const query = `
         INSERT INTO group_members (group_id, user_id, role)
         VALUES ($1, $2, $3) RETURNING *`
-    const result = await runQuery(q, v)
+    const result = await runQuery(query, values)
     return result
 }
 

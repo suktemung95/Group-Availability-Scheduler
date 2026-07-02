@@ -5,4 +5,5 @@
 - GET /users/:userId/schedule for viewing another user's schedule IN same group
 
 # next steps: 
-- add accept, decline, and cancel invite for groups (no more join?)
+- add cancel invite for groups (no more join?)
+- make sure a user isn't in a group when they're invited to it
