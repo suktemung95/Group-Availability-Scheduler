@@ -1,8 +1,10 @@
 # remember
 - input validation for everything
 - fix time zones in user.services.convertTime() *dont assume time zone*
-
 - GET /users/:userId/schedule for viewing another user's schedule IN same group
+- add more roles (maybe admin) and permissions in each role
+- remove member / delete group
+- make atomic transacation calls
 
 # next steps: 
 - add cancel invite for groups (no more join?)
@@ -16,3 +18,7 @@
 - declining invite deletes it
 - accepting invite twice should not break
 - when leaving a group, check if they are the owner
+
+# untested
+- invitePool.getInvite in verifyInvited()
+- getInvites in invite.controller.js

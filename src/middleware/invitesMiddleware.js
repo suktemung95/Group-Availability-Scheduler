@@ -8,9 +8,9 @@ async function verifyInvited(req, res, next) {
             return res.status(400).json({ error: "Invalid invite id" })
         }
 
-        const invite = await invitePool.getInvite([inviteId, id])
+        const invite = await invitePool.getInvite([inviteId])
         
-        if (invite.length === 0) {
+        if (invite[0].invitee_id !== id) {
             return res.status(403).json({ error: "User was not invited"})
         }
 

@@ -1,5 +1,21 @@
 const groupPool = require("../db/group.db")
 const invitePool = require("../db/invite.db")
+
+exports.getInvites = async (req, res) => {
+    try {
+        const id = req.user.userId
+
+        const result = invitePool.getInvites([id])
+
+        return res.status(200).json({
+            success: "User invites returned",
+            result
+        })
+    } catch (err) {
+        res.status(500).json({ error: "Database error" })
+    }
+}
+
 exports.acceptInvite = async (req, res) => {
     try {
         const id = req.user.userId
@@ -19,10 +35,7 @@ exports.acceptInvite = async (req, res) => {
             member_data: result
         })
     } catch (err) {
-        res.status(500).json({
-            error: "Database error",
-            details: err.message
-        })
+        res.status(500).json({ error: "Database error" })
     }
 }
 
