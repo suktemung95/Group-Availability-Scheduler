@@ -7,8 +7,7 @@
 - make atomic transacation calls
 
 # next steps: 
-- add cancel invite for groups (no more join?)
-- make sure a user isn't in a group when they're invited to it
+
 
 # edge cases
 - cannot invite yourself
@@ -18,6 +17,8 @@
 - declining invite deletes it
 - accepting invite twice should not break
 - when leaving a group, check if they are the owner
+- owner can also revoke invites
+- make sure a user isn't in a group when they're invited to it
 
 # untested
 - invitePool.getInvite in verifyInvited()

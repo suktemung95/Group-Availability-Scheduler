@@ -8,5 +8,5 @@ const auth = require("../middleware/auth")
 router.get('/', auth, inviteCon.getInvites)
 router.post("/:inviteId/accept", auth, verifyInvited, inviteCon.acceptInvite)
 router.delete("/:inviteId/decline", auth, verifyInvited, inviteCon.declineInvite)
-
+router.delete("/:inviteId/revoke", auth, inviteCon.revokeInvite)
 module.exports = router
