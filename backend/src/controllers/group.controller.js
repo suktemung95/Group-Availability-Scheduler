@@ -121,3 +121,19 @@ exports.inviteUser = async (req, res) => {
         return res.status(500).json({ error: "Database error"})
     }
 }
+
+exports.getUserGroups = async (req, res) => {
+    try {
+        const id = req.user.userId
+        const result = await groupPool.getUserGroups([id])
+
+        return res.status(200).json({
+            data: result,
+            pagination: "TBD"
+        })
+    } catch (err) {
+        return res.status(500).json({
+            error: "Database Error"
+        })
+    }
+}

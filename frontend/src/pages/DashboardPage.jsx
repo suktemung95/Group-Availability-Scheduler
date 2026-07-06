@@ -1,157 +1,332 @@
+import { useEffect, useState } from "react"
 function DashboardPage() {
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  
+  const [user, setUser] = useState(null)
+  const [schedule, setSchedule] = useState(null)
+  const [groups, setGroups] = useState(null)  
+  const [invites, setInvites] = useState(null)
+
+  useEffect(() => {
+    async function fetchData(url, setCallback) {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        throw new Error("You are not logged in")
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load user")
+      }
+
+      console.log("Url:", url, "\nReturned:", data.data)
+      setCallback(data.data)
+    }
+
+    async function loadDashboardData() {
+      try {
+        await fetchData("http://localhost:3000/users/me", setUser)
+        await fetchData("http://localhost:3000/schedule/", setSchedule)
+        await fetchData("http://localhost:3000/groups/list", setGroups)
+        await fetchData("http://localhost:3000/invites/list", setInvites)
+      } catch (error) {
+        setError(error.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [])
+
   return (
     <main style={styles.page}>
-      <section style={styles.container}>
+      <aside style={styles.sidebar}>
+        <div style={styles.logoSection}>
+          <div style={styles.logoMark}>GA</div>
+          <div>
+            <h2 style={styles.logoText}>GroupAvail</h2>
+            <p style={styles.logoSubtext}>Scheduler</p>
+          </div>
+        </div>
+
+        <nav style={styles.nav}>
+          <button style={{ ...styles.navItem, ...styles.navItemActive }}>
+            <span style={styles.navIcon}>▦</span>
+            Overview
+          </button>
+
+          <button style={styles.navItem}>
+            <span style={styles.navIcon}>□</span>
+            Schedule
+          </button>
+
+          <button style={styles.navItem}>
+            <span style={styles.navIcon}>◉</span>
+            Groups
+          </button>
+
+          <button style={styles.navItem}>
+            <span style={styles.navIcon}>✉</span>
+            Invites
+          </button>
+
+          <button style={styles.navItem}>
+            <span style={styles.navIcon}>⇄</span>
+            Overlap
+          </button>
+
+          <button style={styles.navItem}>
+            <span style={styles.navIcon}>⚙</span>
+            Settings
+          </button>
+        </nav>
+
+        <div style={styles.sidebarCard}>
+          <p style={styles.sidebarCardLabel}>Current Week</p>
+          <h3 style={styles.sidebarCardTitle}>Availability</h3>
+
+          <div style={styles.miniProgressOuter}>
+            <div style={styles.miniProgressInner}></div>
+          </div>
+
+          <p style={styles.sidebarCardText}>
+            Your schedule setup is partially complete.
+          </p>
+        </div>
+      </aside>
+
+      <section style={styles.mainContent}>
         <header style={styles.header}>
           <div>
-            <p style={styles.eyebrow}>Group Availability Scheduler</p>
-            <h1 style={styles.title}>Dashboard</h1>
+            <p style={styles.eyebrow}>Overview</p>
+            <h1 style={styles.title}>
+              {loading || !user ? "Dashboard" : `${user.username}'s Dashboard`}
+            </h1>
             <p style={styles.subtitle}>
-              Manage your weekly availability, groups, invites, and overlap checks.
+              Manage your availability, groups, invites, and shared free time.
             </p>
           </div>
 
-          <button type="button" style={styles.logoutButton}>
-            Log Out
-          </button>
+          <div style={styles.headerActions}>
+            <button type="button" style={styles.iconButton}>
+              ⌕
+            </button>
+            <button type="button" style={styles.logoutButton}>
+              Log Out
+            </button>
+          </div>
         </header>
 
-        <section style={styles.summaryGrid}>
-          <div style={styles.summaryCard}>
-            <p style={styles.summaryLabel}>Schedule Blocks</p>
-            <h2 style={styles.summaryValue}>--</h2>
-            <p style={styles.summaryText}>Free, busy, tentative, and private blocks</p>
-          </div>
-
-          <div style={styles.summaryCard}>
-            <p style={styles.summaryLabel}>Groups</p>
-            <h2 style={styles.summaryValue}>--</h2>
-            <p style={styles.summaryText}>Groups you own or belong to</p>
-          </div>
-
-          <div style={styles.summaryCard}>
-            <p style={styles.summaryLabel}>Pending Invites</p>
-            <h2 style={styles.summaryValue}>--</h2>
-            <p style={styles.summaryText}>Invites waiting for a response</p>
-          </div>
-        </section>
-
-        <section style={styles.contentGrid}>
-          <article style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <div>
-                <h2 style={styles.panelTitle}>Your Schedule</h2>
-                <p style={styles.panelText}>
-                  View and edit your availability blocks for the week.
-                </p>
-              </div>
+        <section style={styles.statsGrid}>
+          <article style={styles.statCard}>
+            <div style={styles.cardTopRow}>
+              <p style={styles.cardLabel}>Schedule Blocks</p>
+              <span style={styles.cardBadge}>This week</span>
             </div>
 
-            <div style={styles.placeholderList}>
-              <div style={styles.placeholderItem}>
-                <span style={styles.dotFree}></span>
-                <div>
-                  <p style={styles.itemTitle}>Free blocks</p>
-                  <p style={styles.itemText}>Times you are available to meet</p>
-                </div>
-              </div>
+            <h2 style={styles.statValue}>
+              {loading || !schedule ? "..." : schedule.length}
+            </h2>
+            <p style={styles.statText}>Free, busy, tentative, and private blocks</p>
 
-              <div style={styles.placeholderItem}>
-                <span style={styles.dotBusy}></span>
-                <div>
-                  <p style={styles.itemTitle}>Busy blocks</p>
-                  <p style={styles.itemText}>Times you are unavailable</p>
-                </div>
-              </div>
-
-              <div style={styles.placeholderItem}>
-                <span style={styles.dotTentative}></span>
-                <div>
-                  <p style={styles.itemTitle}>Tentative blocks</p>
-                  <p style={styles.itemText}>Times that may or may not work</p>
-                </div>
-              </div>
-            </div>
-
-            <button type="button" style={styles.primaryButton}>
+            <button type="button" style={styles.cardButton}>
               View Schedule
             </button>
           </article>
 
-          <article style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <div>
-                <h2 style={styles.panelTitle}>Groups</h2>
-                <p style={styles.panelText}>
-                  Open a group to compare member availability.
-                </p>
-              </div>
+          <article style={styles.statCard}>
+            <div style={styles.cardTopRow}>
+              <p style={styles.cardLabel}>Groups</p>
+              <span style={styles.cardBadge}>Active</span>
             </div>
 
-            <div style={styles.emptyBox}>
-              <p style={styles.emptyTitle}>No groups loaded yet</p>
-              <p style={styles.emptyText}>
-                Later, this panel will show groups from your backend.
-              </p>
-            </div>
+            <h2 style={styles.statValue}>
+              {loading || !groups ? "..." : groups.length}
+            </h2>
+            <p style={styles.statText}>Groups you own or belong to</p>
 
-            <button type="button" style={styles.secondaryButton}>
+            <button type="button" style={styles.cardButton}>
               View Groups
             </button>
           </article>
 
-          <article style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <div>
-                <h2 style={styles.panelTitle}>Invites</h2>
-                <p style={styles.panelText}>
-                  Accept, decline, or review group invitations.
-                </p>
-              </div>
+          <article style={styles.statCard}>
+            <div style={styles.cardTopRow}>
+              <p style={styles.cardLabel}>Pending Invites</p>
+              { invites?.length > 0 ? (
+                <span style={styles.cardBadgeRed}>Needs review</span>
+              ) : (
+                <span style={styles.cardBadge}>None!</span>
+              )}
             </div>
 
-            <div style={styles.emptyBox}>
-              <p style={styles.emptyTitle}>No invites loaded yet</p>
-              <p style={styles.emptyText}>
-                This will eventually call your group invite endpoints.
-              </p>
-            </div>
+            <h2 style={styles.statValue}>
+              {loading || !invites ? "..." : invites.length}
+            </h2>
+            <p style={styles.statText}>Invitations waiting for your response</p>
 
-            <button type="button" style={styles.secondaryButton}>
+            <button type="button" style={styles.cardButton}>
               View Invites
             </button>
+          </article>
+
+          <article style={styles.statCard}>
+            <div style={styles.cardTopRow}>
+              <p style={styles.cardLabel}>Shared Free Time</p>
+              <span style={styles.cardBadge}>Overlap</span>
+            </div>
+
+            <h2 style={styles.statValue}>6h</h2>
+            <p style={styles.statText}>Estimated shared availability this week</p>
+
+            <button type="button" style={styles.cardButton}>
+              Check Overlap
+            </button>
+          </article>
+        </section>
+
+        <section style={styles.contentGrid}>
+          <article style={styles.largePanel}>
+            <div style={styles.panelHeader}>
+              <div>
+                <p style={styles.panelLabel}>Schedule Preview</p>
+                <h2 style={styles.panelTitle}>This Week</h2>
+              </div>
+
+              <button type="button" style={styles.smallPanelButton}>
+                Edit
+              </button>
+            </div>
+
+            <div style={styles.weekList}>
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Mon</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "65%" }}></div>
+                </div>
+                <span style={styles.dayText}>3 blocks</span>
+              </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Tue</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "40%" }}></div>
+                </div>
+                <span style={styles.dayText}>2 blocks</span>
+              </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Wed</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "75%" }}></div>
+                </div>
+                <span style={styles.dayText}>4 blocks</span>
+              </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Thu</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "55%" }}></div>
+                </div>
+                <span style={styles.dayText}>2 blocks</span>
+              </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Fri</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                </div>
+                <span style={styles.dayText}>1 block</span>
+              </div>
+            </div>
           </article>
 
           <article style={styles.panel}>
             <div style={styles.panelHeader}>
               <div>
-                <h2 style={styles.panelTitle}>Overlap Finder</h2>
-                <p style={styles.panelText}>
-                  Find shared free time between two users or a whole group.
-                </p>
+                <p style={styles.panelLabel}>Groups</p>
+                <h2 style={styles.panelTitle}>Recent Groups</h2>
               </div>
             </div>
 
-            <div style={styles.overlapPreview}>
-              <div style={styles.timeBlock}>
-                <span style={styles.time}>Mon</span>
-                <div style={styles.timeBar}></div>
+            <div style={styles.groupList}>
+              <div style={styles.listItem}>
+                <div style={styles.avatar}>V</div>
+                <div>
+                  <p style={styles.listTitle}>Volleyball Friends</p>
+                  <p style={styles.listText}>5 members</p>
+                </div>
               </div>
 
-              <div style={styles.timeBlock}>
-                <span style={styles.time}>Tue</span>
-                <div style={styles.timeBarShort}></div>
+              <div style={styles.listItem}>
+                <div style={styles.avatar}>C</div>
+                <div>
+                  <p style={styles.listTitle}>CS Project Team</p>
+                  <p style={styles.listText}>3 members</p>
+                </div>
               </div>
 
-              <div style={styles.timeBlock}>
-                <span style={styles.time}>Wed</span>
-                <div style={styles.timeBarMedium}></div>
+              <div style={styles.listItem}>
+                <div style={styles.avatar}>W</div>
+                <div>
+                  <p style={styles.listTitle}>Weekend Plans</p>
+                  <p style={styles.listText}>4 members</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article style={styles.panel}>
+            <div style={styles.panelHeader}>
+              <div>
+                <p style={styles.panelLabel}>Invites</p>
+                <h2 style={styles.panelTitle}>Pending</h2>
               </div>
             </div>
 
-            <button type="button" style={styles.primaryButton}>
-              Check Overlap
-            </button>
+            <div style={styles.inviteBox}>
+              <p style={styles.inviteTitle}>2 invites waiting</p>
+              <p style={styles.inviteText}>
+                Later, this card will use your group invite endpoints.
+              </p>
+
+              <button type="button" style={styles.dangerButton}>
+                Review Invites
+              </button>
+            </div>
+          </article>
+
+          <article style={styles.panel}>
+            <div style={styles.panelHeader}>
+              <div>
+                <p style={styles.panelLabel}>Overlap Finder</p>
+                <h2 style={styles.panelTitle}>Best Match</h2>
+              </div>
+            </div>
+
+            <div style={styles.overlapCard}>
+              <div style={styles.circleOuter}>
+                <div style={styles.circleInner}>
+                  <span style={styles.circleValue}>72%</span>
+                  <span style={styles.circleLabel}>match</span>
+                </div>
+              </div>
+
+              <p style={styles.overlapText}>
+                Best shared window appears to be Thursday evening.
+              </p>
+            </div>
           </article>
         </section>
       </section>
@@ -162,276 +337,491 @@ function DashboardPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f4f6f8",
+    width: "100vw",
+    display: "grid",
+    gridTemplateColumns: "260px minmax(0, 1fr)",
+    background: "#111318",
+    color: "#f9fafb",
     fontFamily: "Arial, sans-serif",
-    color: "#111827",
-    padding: "32px 20px",
+    overflow: "hidden",
+},
+  sidebar: {
+    background: "#171a21",
+    borderRight: "1px solid #2a2f3a",
+    padding: "24px 18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "28px",
   },
 
-  container: {
-    maxWidth: "1100px",
-    margin: "0 auto",
+  logoSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
   },
+
+  logoMark: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "12px",
+    background: "#dc2626",
+    color: "#ffffff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "800",
+    letterSpacing: "-0.03em",
+  },
+
+  logoText: {
+    margin: 0,
+    fontSize: "18px",
+    color: "#ffffff",
+  },
+
+  logoSubtext: {
+    margin: "3px 0 0",
+    fontSize: "12px",
+    color: "#8b93a7",
+  },
+
+  nav: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+
+  navItem: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "12px 14px",
+    border: "none",
+    borderRadius: "10px",
+    background: "transparent",
+    color: "#a4acbd",
+    fontSize: "14px",
+    fontWeight: "700",
+    cursor: "pointer",
+    textAlign: "left",
+  },
+
+  navItemActive: {
+    background: "#dc2626",
+    color: "#ffffff",
+  },
+
+  navIcon: {
+    width: "20px",
+    textAlign: "center",
+    fontSize: "15px",
+  },
+
+  sidebarCard: {
+    marginTop: "auto",
+    background: "#f9fafb",
+    color: "#111827",
+    borderRadius: "18px",
+    padding: "18px",
+  },
+
+  sidebarCardLabel: {
+    margin: "0 0 6px",
+    color: "#6b7280",
+    fontSize: "12px",
+    fontWeight: "700",
+    textTransform: "uppercase",
+  },
+
+  sidebarCardTitle: {
+    margin: "0 0 16px",
+    fontSize: "18px",
+  },
+
+  miniProgressOuter: {
+    width: "100%",
+    height: "10px",
+    background: "#e5e7eb",
+    borderRadius: "999px",
+    overflow: "hidden",
+    marginBottom: "12px",
+  },
+
+  miniProgressInner: {
+    width: "68%",
+    height: "100%",
+    background: "#dc2626",
+    borderRadius: "999px",
+  },
+
+  sidebarCardText: {
+    margin: 0,
+    color: "#6b7280",
+    fontSize: "13px",
+    lineHeight: "1.5",
+  },
+
+  mainContent: {
+    width: "100%",
+    minWidth: 0,
+    padding: "28px",
+    overflowY: "auto",
+},
 
   header: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    gap: "18px",
-    marginBottom: "28px",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "24px",
+    marginBottom: "26px",
   },
 
   eyebrow: {
     margin: "0 0 8px",
+    color: "#ef4444",
     fontSize: "13px",
-    fontWeight: "700",
-    color: "#2563eb",
+    fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: "0.08em",
   },
 
   title: {
     margin: "0 0 8px",
-    fontSize: "36px",
-    color: "#111827",
+    fontSize: "34px",
+    color: "#ffffff",
   },
 
   subtitle: {
-    margin: "0 auto",
-    maxWidth: "620px",
-    color: "#6b7280",
-    fontSize: "16px",
+    margin: 0,
+    color: "#9ca3af",
+    fontSize: "15px",
     lineHeight: "1.6",
   },
 
-  logoutButton: {
-    padding: "10px 14px",
-    borderRadius: "8px",
-    border: "1px solid #d1d5db",
-    background: "#ffffff",
-    color: "#374151",
-    fontWeight: "600",
+  headerActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+
+  iconButton: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "12px",
+    border: "1px solid #2f3542",
+    background: "#1f232c",
+    color: "#ffffff",
+    fontSize: "18px",
     cursor: "pointer",
   },
 
-  summaryGrid: {
+  logoutButton: {
+    padding: "12px 16px",
+    borderRadius: "12px",
+    border: "1px solid #7f1d1d",
+    background: "#1f232c",
+    color: "#fecaca",
+    fontWeight: "800",
+    cursor: "pointer",
+  },
+
+  statsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(4, minmax(220px, 1fr))",
     gap: "18px",
-    marginBottom: "24px",
+    marginBottom: "20px",
+    width: "100%",
+},
+
+  statCard: {
+    background: "#20242d",
+    border: "1px solid #2f3542",
+    borderRadius: "20px",
+    padding: "20px",
+    boxShadow: "0 18px 35px rgba(0, 0, 0, 0.25)",
   },
 
-  summaryCard: {
-    background: "#ffffff",
-    borderRadius: "14px",
-    padding: "22px",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
-    border: "1px solid #e5e7eb",
-    textAlign: "center",
+  cardTopRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "18px",
   },
 
-  summaryLabel: {
-    margin: "0 0 10px",
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#6b7280",
-  },
-
-  summaryValue: {
-    margin: "0 0 8px",
-    fontSize: "32px",
-    color: "#111827",
-  },
-
-  summaryText: {
+  cardLabel: {
     margin: 0,
+    color: "#d1d5db",
     fontSize: "14px",
-    color: "#6b7280",
+    fontWeight: "800",
+  },
+
+  cardBadge: {
+    padding: "5px 8px",
+    borderRadius: "999px",
+    background: "#2f3542",
+    color: "#cbd5e1",
+    fontSize: "11px",
+    fontWeight: "800",
+  },
+
+  cardBadgeRed: {
+    padding: "5px 8px",
+    borderRadius: "999px",
+    background: "#7f1d1d",
+    color: "#fecaca",
+    fontSize: "11px",
+    fontWeight: "800",
+  },
+
+  statValue: {
+    margin: "0 0 8px",
+    color: "#ffffff",
+    fontSize: "38px",
+    lineHeight: 1,
+  },
+
+  statText: {
+    minHeight: "42px",
+    margin: "0 0 18px",
+    color: "#9ca3af",
+    fontSize: "13px",
     lineHeight: "1.5",
+  },
+
+  cardButton: {
+    width: "100%",
+    padding: "11px 12px",
+    borderRadius: "999px",
+    border: "none",
+    background: "#ffffff",
+    color: "#111827",
+    fontWeight: "800",
+    cursor: "pointer",
   },
 
   contentGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "1.5fr 1fr 1fr",
     gap: "20px",
-  },
+    width: "100%",
+},
+
+  largePanel: {
+    background: "#20242d",
+    border: "1px solid #2f3542",
+    borderRadius: "20px",
+    padding: "22px",
+    minHeight: "320px",
+    boxShadow: "0 18px 35px rgba(0, 0, 0, 0.22)",
+    gridColumn: "span 2",
+},
 
   panel: {
-    background: "#ffffff",
-    borderRadius: "16px",
-    padding: "24px",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
-    border: "1px solid #e5e7eb",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    gap: "20px",
+    background: "#20242d",
+    border: "1px solid #2f3542",
+    borderRadius: "20px",
+    padding: "22px",
+    minHeight: "260px",
+    boxShadow: "0 18px 35px rgba(0, 0, 0, 0.22)",
   },
 
   panelHeader: {
     display: "flex",
-    justifyContent: "center",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     gap: "16px",
-    width: "100%",
+    marginBottom: "22px",
+  },
+
+  panelLabel: {
+    margin: "0 0 6px",
+    color: "#ef4444",
+    fontSize: "12px",
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
   },
 
   panelTitle: {
-    margin: "0 0 6px",
-    fontSize: "21px",
-    color: "#111827",
-  },
-
-  panelText: {
     margin: 0,
-    color: "#6b7280",
-    fontSize: "14px",
-    lineHeight: "1.5",
+    color: "#ffffff",
+    fontSize: "22px",
   },
 
-  placeholderList: {
+  smallPanelButton: {
+    padding: "8px 12px",
+    borderRadius: "10px",
+    border: "1px solid #2f3542",
+    background: "#171a21",
+    color: "#d1d5db",
+    fontWeight: "800",
+    cursor: "pointer",
+  },
+
+  weekList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "18px",
+  },
+
+  dayRow: {
+    display: "grid",
+    gridTemplateColumns: "48px 1fr 76px",
+    alignItems: "center",
+    gap: "14px",
+  },
+
+  dayLabel: {
+    color: "#d1d5db",
+    fontWeight: "800",
+    fontSize: "13px",
+  },
+
+  dayTrack: {
+    height: "14px",
+    background: "#111318",
+    borderRadius: "999px",
+    overflow: "hidden",
+    border: "1px solid #2f3542",
+  },
+
+  dayFill: {
+    height: "100%",
+    background: "#dc2626",
+    borderRadius: "999px",
+  },
+
+  dayText: {
+    color: "#9ca3af",
+    fontSize: "13px",
+    textAlign: "right",
+  },
+
+  groupList: {
     display: "flex",
     flexDirection: "column",
     gap: "14px",
-    width: "100%",
   },
 
-  placeholderItem: {
+  listItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "12px",
+    borderRadius: "14px",
+    background: "#171a21",
+    border: "1px solid #2f3542",
+  },
+
+  avatar: {
+    width: "38px",
+    height: "38px",
+    borderRadius: "999px",
+    background: "#dc2626",
+    color: "#ffffff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "12px",
-    padding: "12px",
-    borderRadius: "10px",
-    background: "#f9fafb",
-    border: "1px solid #e5e7eb",
+    fontWeight: "900",
   },
 
-  dotFree: {
-    width: "12px",
-    height: "12px",
-    borderRadius: "999px",
-    background: "#22c55e",
-    flexShrink: 0,
-  },
-
-  dotBusy: {
-    width: "12px",
-    height: "12px",
-    borderRadius: "999px",
-    background: "#ef4444",
-    flexShrink: 0,
-  },
-
-  dotTentative: {
-    width: "12px",
-    height: "12px",
-    borderRadius: "999px",
-    background: "#f59e0b",
-    flexShrink: 0,
-  },
-
-  itemTitle: {
-    margin: "0 0 3px",
+  listTitle: {
+    margin: "0 0 4px",
+    color: "#ffffff",
     fontSize: "14px",
-    fontWeight: "700",
-    color: "#111827",
+    fontWeight: "800",
   },
 
-  itemText: {
+  listText: {
     margin: 0,
+    color: "#9ca3af",
     fontSize: "13px",
-    color: "#6b7280",
   },
 
-  emptyBox: {
-    padding: "24px",
-    borderRadius: "12px",
-    background: "#f9fafb",
-    border: "1px dashed #cbd5e1",
+  inviteBox: {
+    background: "#171a21",
+    border: "1px solid #2f3542",
+    borderRadius: "16px",
+    padding: "20px",
     textAlign: "center",
   },
 
-  emptyTitle: {
-    margin: "0 0 6px",
-    fontWeight: "700",
-    color: "#374151",
+  inviteTitle: {
+    margin: "0 0 8px",
+    color: "#ffffff",
+    fontSize: "20px",
+    fontWeight: "900",
   },
 
-  emptyText: {
-    margin: 0,
+  inviteText: {
+    margin: "0 0 18px",
+    color: "#9ca3af",
     fontSize: "14px",
-    color: "#6b7280",
     lineHeight: "1.5",
   },
 
-  overlapPreview: {
+  dangerButton: {
+    padding: "11px 14px",
+    borderRadius: "999px",
+    border: "none",
+    background: "#dc2626",
+    color: "#ffffff",
+    fontWeight: "900",
+    cursor: "pointer",
+  },
+
+  overlapCard: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
-    padding: "16px",
-    borderRadius: "12px",
-    background: "#f9fafb",
-    border: "1px solid #e5e7eb",
-  },
-
-  timeBlock: {
-    display: "grid",
-    gridTemplateColumns: "48px 1fr",
     alignItems: "center",
-    gap: "12px",
+    gap: "18px",
   },
 
-  time: {
-    fontSize: "13px",
-    fontWeight: "700",
-    color: "#374151",
-  },
-
-  timeBar: {
-    height: "12px",
+  circleOuter: {
+    width: "150px",
+    height: "150px",
     borderRadius: "999px",
-    background: "#bfdbfe",
-    width: "85%",
+    background:
+      "conic-gradient(#dc2626 0deg 260deg, #2f3542 260deg 360deg)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  timeBarShort: {
-    height: "12px",
+  circleInner: {
+    width: "108px",
+    height: "108px",
     borderRadius: "999px",
-    background: "#bfdbfe",
-    width: "45%",
+    background: "#20242d",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  timeBarMedium: {
-    height: "12px",
-    borderRadius: "999px",
-    background: "#bfdbfe",
-    width: "65%",
-  },
-
-  primaryButton: {
-    marginTop: "auto",
-    padding: "12px 14px",
-    borderRadius: "9px",
-    border: "none",
-    background: "#2563eb",
+  circleValue: {
     color: "#ffffff",
-    fontWeight: "700",
-    cursor: "pointer",
-    width: "180px",
+    fontSize: "30px",
+    fontWeight: "900",
+    lineHeight: 1,
   },
 
-  secondaryButton: {
-    marginTop: "auto",
-    padding: "12px 14px",
-    borderRadius: "9px",
-    border: "1px solid #d1d5db",
-    background: "#ffffff",
-    color: "#374151",
-    fontWeight: "700",
-    cursor: "pointer",
-    width: "180px",
+  circleLabel: {
+    color: "#9ca3af",
+    fontSize: "12px",
+    marginTop: "6px",
+    textTransform: "uppercase",
+    fontWeight: "800",
+  },
+
+  overlapText: {
+    margin: 0,
+    color: "#9ca3af",
+    fontSize: "14px",
+    lineHeight: "1.5",
+    textAlign: "center",
   },
 }
 

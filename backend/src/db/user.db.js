@@ -1,4 +1,12 @@
 const runQuery = require('./pool')
+
+exports.getMe = async (values) => {
+    const query = `
+        SELECT id, username, created_at
+        FROM users WHERE id = $1
+        `
+    return await runQuery(query, values)
+}
 exports.getTwoUserFreeBlocks = async (user1, user2) => {
 
     const timeQuery = `SELECT user_id, day_of_week, start_time, end_time, block_type
@@ -10,11 +18,3 @@ exports.getTwoUserFreeBlocks = async (user1, user2) => {
     return blocks
 }
 
-exports.getUserGroups = async (userId) => {
-    const query = `SELECT * FROM group_members 
-        WHERE user_id = $1 ORDER BY group_id ASC`
-    const values = [id]
-
-    const result = await runQuery(query, values)
-    return result
-}

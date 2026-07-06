@@ -3,21 +3,14 @@ const utils = require("../utils")
 const userPool = require("../db/user.db")
 const userServices = require('../services/user.services')
 
-exports.getUserGroups = async (req, res) => {
-
+exports.getMe = async (req, res) => {
     try {
-
         const id = req.user.userId
-        const result = userPool.getUserGroups(id)
+        const result = await userPool.getMe([id])
 
-        if (result.length === 0) {
-            return res.status(200).json({ data: [] })
-        }
-
-        const groups = result
         return res.status(200).json({
-            data: groups,
-            pagination: "TBD"
+            Success: "Successfully fetched user data",
+            data: result[0]
         })
     } catch (err) {
         return res.status(500).json({

@@ -5,6 +5,9 @@ Content-Type: application/json
     "username": "LickWidFyre2",
     "password": "password"
 }
+###
+GET http://localhost:3000/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyIiwiaWF0IjoxNzgzMzAxNjk1LCJleHAiOjE3ODMzMDUyOTV9.O7PUOBL64W8QkuM4E4bkEldip1NynRKE9Qtmn8R64w4
 
 ###
 GET http://localhost:3000/users/2/overlap
@@ -12,7 +15,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwia
 
 ###
 GET http://localhost:3000/schedule/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyOTI1Mjc5LCJleHAiOjE3ODI5Mjg4Nzl9.fK7r9QkcWs62s8pDG3yXxFUncuRYDiTBD2_voEutKbo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyIiwiaWF0IjoxNzgzMjk5OTgwLCJleHAiOjE3ODMzMDM1ODB9.Ame0yI11j9yOGQMhjerUc5u0bb09NFuAr7q3F0NbNlU
 
 ###
 GET http://localhost:3000/me

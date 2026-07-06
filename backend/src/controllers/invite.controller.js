@@ -5,11 +5,11 @@ exports.getInvites = async (req, res) => {
     try {
         const id = req.user.userId
 
-        const result = invitePool.getInvites([id])
+        const result = await invitePool.getInvites([id])
 
         return res.status(200).json({
             success: "User invites returned",
-            result
+            data: result
         })
     } catch (err) {
         res.status(500).json({ error: "Database error" })

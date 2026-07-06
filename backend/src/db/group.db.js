@@ -52,3 +52,10 @@ exports.makeInvite = async (values) => {
     const result = await runQuery(query, values)
     return result
 }
+
+exports.getUserGroups = async (values) => {
+    const query = `SELECT * FROM group_members 
+        WHERE user_id = $1 ORDER BY group_id ASC`
+
+    return await runQuery(query, values)
+}

@@ -5,7 +5,7 @@ const userCon = require("../controllers/user.controller")
 const auth = require("../middleware/auth")
 const { verifySharedGroup } = require("../middleware/groupsMiddleware")
 
-router.get("/groups", auth, userCon.getUserGroups)
+router.get("/me", auth, userCon.getMe)
 router.get("/:userId/overlap", auth, verifySharedGroup, userCon.getOverlap)
 
 module.exports = router
