@@ -23,7 +23,7 @@ exports.findScheduleConflicts = async ({userId, dow, start, end, excludeBlockId 
 exports.validateScheduleInput = ({dow, start, end, block_type}) => {
     const validBlockTypes = ["free", "busy", "tentative", "private", "other"];
 
-    if (dow < 0 || dow > 6) {
+    if (dow < 1 || dow > 7) {
         return "Invalid DOW";
     }
 

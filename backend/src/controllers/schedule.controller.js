@@ -5,13 +5,10 @@ const schedulePool = require('../db/schedule.db')
 const { validateScheduleInput, findScheduleConflicts } = require("../services/schedule.services")
 
 exports.getSchedule = async (req, res) => {
-    
     try {
         const id = req.user.userId
-
         const result = await schedulePool.getSchedule([id])
-
-        return sendSuccess(res, 200, "Schedule successfully returned", blocks)
+        return sendSuccess(res, 200, "Schedule successfully returned", result)
     } catch (err) {
         return sendError(res, 500, "Database error")
     }
