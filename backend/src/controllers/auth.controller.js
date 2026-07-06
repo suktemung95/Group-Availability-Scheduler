@@ -1,12 +1,13 @@
 const runQuery = require("../db/pool");
-const utils = require("../utils");
+const utils = require("../utils/utils");
+const { sendSuccess, sendError } = require("../utils/responses")
 const authPool = require('../db/auth.db')
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ error: "Invalid Input" });
+    return sendError(res, 400, "Invalid input")
   }
 
   try {
@@ -14,7 +15,7 @@ exports.register = async (req, res) => {
     const user = await authPool.getUserByName([username])
     
     if (user.length > 0) {
-      return res.status(409).json({ error: "User already exists" });
+      return sendError(res, 409, "User already exists")
     }
 
     // hash password
@@ -24,13 +25,9 @@ exports.register = async (req, res) => {
     const result = await authPool.createUser([username, passwordHash])
 
     // return success
-    res.status(201).json({
-      message: "Account Registered Successfully!",
-      data: result[0]
-    });
+    return sendSuccess(res, 201, "Account registered successfully!", result[0])
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "Something went wrong" });
+    return sendError(res, 500, "Something went wrong")
   }
 };
 
@@ -39,14 +36,14 @@ exports.login = async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ error: "Invalid Input" });
+      return sendError(res, 400, "Invalid input")
     }
 
     // get password for username in database
     const result = await authPool.getUserByName([username])
       
     if (result.length === 0) {
-      return res.status(401).json({ error: "Invalid login credentials" })
+      return sendError(res, 401, "Invalid login credentials")
     }
       
     const user = result[0]
@@ -54,13 +51,10 @@ exports.login = async (req, res) => {
 
     if (isValidPassword) {
       const token = utils.generateJWT(user)
-      return res.status(200).json({
-        message: "Login Successful",
-        token: token
-      })
+      return sendSuccess(res, 200, "Login successful", token)
     }
-    return res.status(401).json({ error: "Invalid login credentials" })
+    return sendError(res, 401, "Invalid login credentials")
   } catch (err) {
-    return res.status(500).json({ error: "Database error"})
+    return sendError(res, 500, "Database error")
   }
 }

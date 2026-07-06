@@ -1,5 +1,6 @@
 const groupPool = require("../db/group.db")
 const userServices = require("../services/user.services")
+const { sendSuccess, sendError } = require("../utils/responses")
 
 exports.postGroup = async (req, res) => {
 
@@ -12,14 +13,14 @@ exports.postGroup = async (req, res) => {
         
         // add self to group
         const result = await groupPool.joinGroup([group_id, user_id, 'owner'])
-        return res.status(201).json({
-            data: result[0],
-            group: groupResult[0]
-        })
+        return sendSuccess(res, 201, "Succesfully created group",
+            {
+                group: result[0],
+                membership: groupResult[0]
+            }
+        )
     } catch (err) {
-        return res.status(500).json({
-            error: "Database error"
-        })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -32,17 +33,12 @@ exports.joinGroup = async (req, res) => {
         const result = await groupPool.joinGroup([group_id, user_id, 'member'])
 
         if (result.length === 0) {
-            return res.status(409).json({
-                error: "User is already a member of this group"
-            });
+            return sendError(res, 409, "User is already a member of this group")
         }
-            
-        return res.status(201).json({
-            success: "Added member to group",
-            data: result[0]
-        })
+         
+        return sendSuccess(res, 201, "Added member to group", result[0])
     } catch (err) {
-        return res.status(500).json({ error: "Database error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -53,13 +49,10 @@ exports.leaveGroup = async (req, res) => {
 
         const result = await groupPool.leaveGroup([id, groupId])
 
-        return res.status(200).json({
-            success: "User successfully removed from group",
-            data: result[0]
-        })
+        return sendSuccess(res, 200, "User successfully removed from group", result[0])
 
     } catch (err) {
-        return res.status(500).json({ error: "Database error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -69,9 +62,9 @@ exports.getGroupMembers = async (req, res) => {
         const groupId = Number(req.params.groupId)
         const members = await groupPool.getGroupMembers([groupId])
 
-        return res.status(200).json({ members: members })
+        return sendSuccess(res, 200, "Group members sucessfully returned", members)
     } catch (err) {
-        return res.status(500).json({ error: "Database Error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -80,27 +73,23 @@ exports.getGroupOverlap = async (req, res) => {
         const groupId = Number(req.params.groupId);
 
         if (Number.isNaN(groupId)) {
-            return res.status(400).json({ error: "Invalid group id" });
+            return sendError(res, 400, "Invalid group id")
         }
 
         const members = await groupPool.getGroupMembers([groupId]);
         const memberIds = members.map(member => Number(member.user_id));
 
         if (memberIds.length === 0) {
-            return res.status(404).json({ error: "Group has no members" });
+            return sendError(res, 404, "Group has no members")
         }
 
         const freeBlocks = await groupPool.getGroupFreeBlocks([groupId]);
 
         const overlap = userServices.findGroupOverlap(freeBlocks, memberIds);
 
-        return res.status(200).json({
-            free_time: overlap
-        });
+        return sendSuccess(res, 200, "Group overlap successfully returned", overlap)
     } catch (err) {
-        return res.status(500).json({
-            error: "Database Error"
-        });
+        return sendError(res, 500, "Database error")
     }
 };
 
@@ -113,12 +102,12 @@ exports.inviteUser = async (req, res) => {
         const result = await groupPool.makeInvite([inviter, invitee, groupId])
 
         if (result.length === 0) {
-            return res.status(400).json({ error: "Failed to invite user" })
+            return sendError(res, 400, "Failed to invite user")
         }
         
-        return res.status(200).json({ success: "Successfully invited user to group"})
-    } catch (err) {
-        return res.status(500).json({ error: "Database error"})
+        return sendSuccess(res, 200, "Successfully invited user to group", result[0])
+        } catch (err) {
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -127,13 +116,8 @@ exports.getUserGroups = async (req, res) => {
         const id = req.user.userId
         const result = await groupPool.getUserGroups([id])
 
-        return res.status(200).json({
-            data: result,
-            pagination: "TBD"
-        })
+        return sendSuccess(res, 200, "Successfully returned user groups", result)
     } catch (err) {
-        return res.status(500).json({
-            error: "Database Error"
-        })
+        return sendError(res, 500, "Database error")
     }
 }

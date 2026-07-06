@@ -1,17 +1,18 @@
 const jwt = require('jsonwebtoken')
+const { sendError, sendSuccess } = require("../utils/responses")
 
 function authMiddleware(req, res, next) {
 
     const authHeader = req.headers.authorization
 
     if (!authHeader) {
-        return res.status(401).json( {error: "Missing AuthHeader / JWT"})
+        return sendError(res, 401, "Missing AuthHeader / JWT")
     }
 
     const token = authHeader.split(" ")[1]
 
     if (!token) {
-        return res.status(401).json({ error: "Invalid token format" })
+        return sendError(res, 401, "Invalid token format")
     }
 
     try {
@@ -20,7 +21,7 @@ function authMiddleware(req, res, next) {
         next()
     }
     catch (err) {
-        return res.status(403).json({ error: "Invalid or expired token"})
+        return sendError(res, 403, "Invalid or expired token")
     }
 }
 

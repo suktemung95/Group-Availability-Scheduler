@@ -14,6 +14,7 @@
   data: ...,
   pagination: ...
 }
+- find token
 
 # edge cases
 - cannot invite yourself

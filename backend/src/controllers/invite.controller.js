@@ -1,5 +1,6 @@
 const groupPool = require("../db/group.db")
 const invitePool = require("../db/invite.db")
+const { sendSuccess, sendError } = require("../utils/responses")
 
 exports.getInvites = async (req, res) => {
     try {
@@ -7,12 +8,10 @@ exports.getInvites = async (req, res) => {
 
         const result = await invitePool.getInvites([id])
 
-        return res.status(200).json({
-            success: "User invites returned",
-            data: result
-        })
+        return sendSuccess(res, 200, "User invites returned", result)
+
     } catch (err) {
-        res.status(500).json({ error: "Database error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -29,13 +28,14 @@ exports.acceptInvite = async (req, res) => {
 
         await invitePool.deleteInvite([invite.id])
 
-        return res.status(200).json({
-            success: "Succesfully accepted invite",
-            invite: invite,
-            member_data: result
-        })
+        return sendSuccess(res, 200, "Succesfully accepted invite", 
+            {
+                invite,
+                member_data: result
+            }
+        )
     } catch (err) {
-        res.status(500).json({ error: "Database error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -46,12 +46,9 @@ exports.declineInvite = async (req, res) => {
 
         await invitePool.deleteInvite([invite.id])
 
-        return res.status(200).json({
-            success: "Succesfully declined invite",
-            invite
-        })
+        return sendSuccess(res, 200, "Succesfully declined invite", invite)
     } catch (err) {
-        res.status(500).json({ error: "Database error"})
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -61,23 +58,22 @@ exports.revokeInvite = async (req, res) => {
         const invite_id = Number(req.params.inviteId)
 
         if (Number.isNaN(invite_id)) {
-            return res.status(400).json({ error: "Invalid invite id"})
+            return sendError(res, 400, "Invalid invite id")
         }
 
         const result = await invitePool.getInvite([invite_id])
         const invite = result[0]
 
         if (!invite) {
-            return res.status(404).json({ error: "Invite does not exist"})
+            return sendError(res, 404, "Invite does not exist")
         }
 
         if (invite.inviter_id === id) {
             await invitePool.deleteInvite(invite_id)
-            return res.status(200).json({ success: "Invite successfully revoked"})
+            return sendSuccess(res, 200, "Invite successfully revoked", invite)
         }
-
-        return res.status(403).json({ error: "User does not have permission to revoke invite"})
+        return sendError(res, 403, "User does not have permission to revoke invite")
     } catch (err) {
-        return res.status(500).json({ error: "Database error"})
+        return sendError(res, 500, "Database error")
     }
 }

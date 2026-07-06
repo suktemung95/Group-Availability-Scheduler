@@ -1,4 +1,5 @@
-const utils = require("../utils")
+const utils = require("../utils/utils")
+const { sendSuccess, sendError } = require("../utils/responses")
 const userPool = require("../db/user.db")
 const schedulePool = require('../db/schedule.db')
 const { validateScheduleInput, findScheduleConflicts } = require("../services/schedule.services")
@@ -10,19 +11,9 @@ exports.getSchedule = async (req, res) => {
 
         const result = await schedulePool.getSchedule([id])
 
-        if (result.length === 0) {
-            return res.status(200).json({
-                data: []
-            })
-        }
-
-        const blocks = result
-        return res.status(200).json({
-            data: blocks,
-            pagination: "TBD"
-        })
+        return sendSuccess(res, 200, "Schedule successfully returned", blocks)
     } catch (err) {
-        return res.status(500).json({ error: "Database error"})
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -35,7 +26,7 @@ exports.postSchedule = async (req, res) => {
         const validationError = validateScheduleInput({dow, start, end, block_type})
 
         if (validationError) {
-            return res.status(422).json({ error: validationError })
+            return sendError(res, 422, validationError)
         }
         
         const conflicts = await findScheduleConflicts({
@@ -46,19 +37,14 @@ exports.postSchedule = async (req, res) => {
         })
  
         if (conflicts.length > 0) {
-            return res.status(409).json({ error: "Schedule block overlaps with an existing block"})
+            return sendError(res, 409, "Schedule block overlaps with an existing")
         }
 
         const result = await schedulePool.postSchedule([id, dow, start, end, block_type, label])
         
-        return res.status(201).json({
-            success: "Added block to schedule",
-            data: result[0]
-        })
+        return sendSuccess(res, 201, "Added block to schedule", result[0])
     } catch (err) {
-        return res.status(500).json({
-            error: "Database error"
-        });
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -68,22 +54,19 @@ exports.deleteSchedule = async (req, res) => {
         const blockId = Number(req.params.blockId)
 
         if (Number.isNaN(blockId)) {
-            return res.status(400).json({ error: "Invalid block id" });
+            return sendError(res, 400, "Invalid block id")
         }
 
         const result = await schedulePool.deleteSchedule([id, blockId])
         
 
         if (result.length === 0) {
-            return res.status(404).json({ error: "Schedule block not found" })
+            return sendError(res, 404, "Schedule block not found")
         }
-
-        return res.status(200).json({
-            success: "Schedule block deleted",
-            data: result[0]
-        })
+        
+        return sendSuccess(res, 200, "Schedule block deleted", result[0])
     } catch (err) {
-        return res.status(500).json({ error: "Database error" })
+        return sendError(res, 500, "Database error")
     }
 }
 
@@ -94,13 +77,13 @@ exports.patchSchedule = async (req, res) => {
         const { dow, start, end, block_type, label } = req.body
 
         if (Number.isNaN(blockId)) {
-            return res.status(400).json({ error: "Invalid block id" });
+            return sendError(res, 400, "Invalid block id")
         }
 
         const block = await schedulePool.getBlock([blockId, id])
 
         if (block.length === 0) {
-            return res.status(404).json({ error: "Schedule block not found" });
+            return sendError(res, 404, "Schedule block not found")
         }
 
         const existing = block[0]
@@ -119,7 +102,7 @@ exports.patchSchedule = async (req, res) => {
         })
 
         if (validationError) {
-            return res.status(422).json({ error: validationError })
+            return sendError(res, 422, validationError)
         }
 
         const conflicts = await findScheduleConflicts({
@@ -131,7 +114,7 @@ exports.patchSchedule = async (req, res) => {
         });
 
         if (conflicts.length > 0) {
-            return res.status(409).json({ error: "Schedule block overlaps with an existing block" });
+            return sendError(res, 409, "Schedule block overlaps with an existing block")
         }
 
         const result = await schedulePool.updateSchedule([
@@ -144,14 +127,8 @@ exports.patchSchedule = async (req, res) => {
             id
         ])
 
-        return res.status(200).json({
-            success: "Schedule block updated",
-            data: updateResult[0]
-        });
+        return sendSuccess(res, 200, "Schedule block updated", updateResult[0])
     } catch (err) {
-        return res.status(500).json({
-                error: "Database error",
-                details: err.message
-        });
+        return sendError(res, 500, "Database error")
     }
 }
