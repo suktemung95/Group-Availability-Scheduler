@@ -7,14 +7,7 @@
 - make atomic transacation calls
 
 # next steps: 
-- standardize responses in JSON returns: 
-{
-  success: true,
-  message: "...",
-  data: ...,
-  pagination: ...
-}
-- find token
+
 
 # edge cases
 - cannot invite yourself
