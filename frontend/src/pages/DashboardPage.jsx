@@ -27,7 +27,7 @@ function DashboardPage() {
   function getDayWidth(dayIndex) {
     if (!freeHours || freeHours <= 0) return "0%"
 
-    return `${((dailyFreeHours[dayIndex] / freeHours) * 100).toFixed(0)}%`
+    return `${((dailyFreeHours[dayIndex] / 24) * 100).toFixed(0)}%`
   }
   useEffect(() => {
     async function fetchData(url, setCallback) {

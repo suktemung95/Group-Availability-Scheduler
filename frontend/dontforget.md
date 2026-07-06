@@ -1,6 +1,8 @@
 - handle no token error
 
-# remember finished
-- schedule blocks number
-- groups number 
-- invites number + tag
+# next
+- schedule page
+- add your real data
+
+# dontforget
+- groups : recent groups
