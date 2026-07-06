@@ -12,15 +12,22 @@ function DashboardPage() {
   const [schedule, setSchedule] = useState(null)
   const [freeHours, setFreeHours] = useState(null)
   const [dailyFreeHours, setDailyFreeHours] = useState(null)
+  const [bestDay, setBestDay] = useState(null)
 
   const [groups, setGroups] = useState(null)  
 
   const [invites, setInvites] = useState(null)
 
+  function intToDay(dayIndex) {
+    const conversion = [
+      "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    ]
+    return conversion[dayIndex]
+  }
   function getDayWidth(dayIndex) {
     if (!freeHours || freeHours <= 0) return "0%"
 
-    return `${(dailyFreeHours[dayIndex] / freeHours) * 100}%`
+    return `${((dailyFreeHours[dayIndex] / freeHours) * 100).toFixed(0)}%`
   }
   useEffect(() => {
     async function fetchData(url, setCallback) {
@@ -66,6 +73,10 @@ function DashboardPage() {
       }
       setFreeHours(totalHours)
       setDailyFreeHours(dailyHours)
+
+      const maxFreeHours = Math.max(...dailyHours)
+      const maxHoursIndex = dailyHours.indexOf(maxFreeHours)
+      setBestDay(maxHoursIndex)
     }
 
     async function loadDashboardData() {
@@ -91,9 +102,6 @@ function DashboardPage() {
         setLoading(false)
       }
     }
-
-    
-
     loadDashboardData()
   }, [])
 
@@ -371,21 +379,21 @@ function DashboardPage() {
           <article style={styles.panel}>
             <div style={styles.panelHeader}>
               <div>
-                <p style={styles.panelLabel}>Overlap Finder</p>
-                <h2 style={styles.panelTitle}>Best Match</h2>
+                <p style={styles.panelLabel}>Best Day</p>
+                <h2 style={styles.panelTitle}>Most Free Time</h2>
               </div>
             </div>
 
             <div style={styles.overlapCard}>
               <div style={styles.circleOuter}>
                 <div style={styles.circleInner}>
-                  <span style={styles.circleValue}>72%</span>
-                  <span style={styles.circleLabel}>match</span>
+                  <span style={styles.circleValue}>{getDayWidth(bestDay)}</span>
+                  <span style={styles.circleLabel}>free</span>
                 </div>
               </div>
 
               <p style={styles.overlapText}>
-                Best shared window appears to be Thursday evening.
+                Your freest day appears to be {intToDay(bestDay)}.
               </p>
             </div>
           </article>
