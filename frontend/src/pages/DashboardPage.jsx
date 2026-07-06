@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 function DashboardPage() {
+
+  const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   
   const [user, setUser] = useState(null)
+
   const [schedule, setSchedule] = useState(null)
+  const [freeHours, setFreeHours] = useState(null)
+
   const [groups, setGroups] = useState(null)  
+
   const [invites, setInvites] = useState(null)
 
   useEffect(() => {
@@ -31,23 +38,53 @@ function DashboardPage() {
 
       console.log("Url:", url, "\nReturned:", data.data)
       setCallback(data.data)
+      return data.data
+    }
+
+    function countFreeHours(scheduleData) {
+      
+      let hours = 0
+      for (const block of scheduleData) {
+        if (block.block_type !== "free") continue
+
+        const start = block.start_time.split(":").map(Number)
+        const end = block.end_time.split(":").map(Number)
+
+        hours += (end[0] - start[0]) + ((end[1] - start[1]) / 60)
+      }
+
+      setFreeHours(hours)
     }
 
     async function loadDashboardData() {
       try {
         await fetchData("http://localhost:3000/users/me", setUser)
-        await fetchData("http://localhost:3000/schedule/", setSchedule)
+        const scheduleData = await fetchData("http://localhost:3000/schedule/", setSchedule)
         await fetchData("http://localhost:3000/groups/list", setGroups)
         await fetchData("http://localhost:3000/invites/list", setInvites)
+
+        countFreeHours(scheduleData)
       } catch (error) {
         setError(error.message)
+        console.log(error)
+        
+        if (
+          error.message === "Invalid or expired token" ||
+          error.message === "You are not logged in"
+        ) {
+          localStorage.removeItem("token")
+          navigate("/login")
+        }
       } finally {
         setLoading(false)
       }
     }
 
+    
+
     loadDashboardData()
   }, [])
+
 
   return (
     <main style={styles.page}>
@@ -183,12 +220,14 @@ function DashboardPage() {
 
           <article style={styles.statCard}>
             <div style={styles.cardTopRow}>
-              <p style={styles.cardLabel}>Shared Free Time</p>
-              <span style={styles.cardBadge}>Overlap</span>
+              <p style={styles.cardLabel}>Your free time</p>
+              <span style={styles.cardBadge}>Total</span>
             </div>
 
-            <h2 style={styles.statValue}>6h</h2>
-            <p style={styles.statText}>Estimated shared availability this week</p>
+            <h2 style={styles.statValue}>
+              { loading || !freeHours ? "..." : freeHours}
+            </h2>
+            <p style={styles.statText}>Your availability this week</p>
 
             <button type="button" style={styles.cardButton}>
               Check Overlap
@@ -249,6 +288,22 @@ function DashboardPage() {
                 </div>
                 <span style={styles.dayText}>1 block</span>
               </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Sat</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                </div>
+                <span style={styles.dayText}>1 block</span>
+              </div>
+
+              <div style={styles.dayRow}>
+                <span style={styles.dayLabel}>Sun</span>
+                <div style={styles.dayTrack}>
+                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                </div>
+                <span style={styles.dayText}>1 block</span>
+              </div>
             </div>
           </article>
 
@@ -284,26 +339,6 @@ function DashboardPage() {
                   <p style={styles.listText}>4 members</p>
                 </div>
               </div>
-            </div>
-          </article>
-
-          <article style={styles.panel}>
-            <div style={styles.panelHeader}>
-              <div>
-                <p style={styles.panelLabel}>Invites</p>
-                <h2 style={styles.panelTitle}>Pending</h2>
-              </div>
-            </div>
-
-            <div style={styles.inviteBox}>
-              <p style={styles.inviteTitle}>2 invites waiting</p>
-              <p style={styles.inviteText}>
-                Later, this card will use your group invite endpoints.
-              </p>
-
-              <button type="button" style={styles.dangerButton}>
-                Review Invites
-              </button>
             </div>
           </article>
 
@@ -603,9 +638,10 @@ const styles = {
 
   contentGrid: {
     display: "grid",
-    gridTemplateColumns: "1.5fr 1fr 1fr",
+    gridTemplateColumns: "1.75fr .75fr 0.5fr",
     gap: "20px",
     width: "100%",
+    alignItems: "stretch",
 },
 
   largePanel: {
@@ -613,9 +649,8 @@ const styles = {
     border: "1px solid #2f3542",
     borderRadius: "20px",
     padding: "22px",
-    minHeight: "320px",
+    minHeight: "360px",
     boxShadow: "0 18px 35px rgba(0, 0, 0, 0.22)",
-    gridColumn: "span 2",
 },
 
   panel: {
@@ -623,9 +658,11 @@ const styles = {
     border: "1px solid #2f3542",
     borderRadius: "20px",
     padding: "22px",
-    minHeight: "260px",
+    minHeight: "360px",
     boxShadow: "0 18px 35px rgba(0, 0, 0, 0.22)",
-  },
+    display: "flex",
+    flexDirection: "column",
+},
 
   panelHeader: {
     display: "flex",
@@ -668,10 +705,10 @@ const styles = {
 
   dayRow: {
     display: "grid",
-    gridTemplateColumns: "48px 1fr 76px",
+    gridTemplateColumns: "40px minmax(0, 1fr) max-content",
     alignItems: "center",
-    gap: "14px",
-  },
+    gap: "10px",
+},
 
   dayLabel: {
     color: "#d1d5db",
@@ -680,12 +717,13 @@ const styles = {
   },
 
   dayTrack: {
+    minWidth: 0,
     height: "14px",
     background: "#111318",
     borderRadius: "999px",
     overflow: "hidden",
     border: "1px solid #2f3542",
-  },
+},
 
   dayFill: {
     height: "100%",
@@ -697,7 +735,8 @@ const styles = {
     color: "#9ca3af",
     fontSize: "13px",
     textAlign: "right",
-  },
+    whiteSpace: "nowrap",
+},
 
   groupList: {
     display: "flex",

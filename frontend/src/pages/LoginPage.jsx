@@ -39,7 +39,7 @@ function LoginPage() {
                 throw new Error(data.message || "Login failed")
             }
 
-            localStorage.setItem("token", data.token)
+            localStorage.setItem("token", data.data)
 
             navigate('/dashboard')
         } catch (error) {
