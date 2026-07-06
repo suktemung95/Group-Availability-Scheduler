@@ -11,11 +11,17 @@ function DashboardPage() {
 
   const [schedule, setSchedule] = useState(null)
   const [freeHours, setFreeHours] = useState(null)
+  const [dailyFreeHours, setDailyFreeHours] = useState(null)
 
   const [groups, setGroups] = useState(null)  
 
   const [invites, setInvites] = useState(null)
 
+  function getDayWidth(dayIndex) {
+    if (!freeHours || freeHours <= 0) return "0%"
+
+    return `${(dailyFreeHours[dayIndex] / freeHours) * 100}%`
+  }
   useEffect(() => {
     async function fetchData(url, setCallback) {
       const token = localStorage.getItem("token")
@@ -43,17 +49,23 @@ function DashboardPage() {
 
     function countFreeHours(scheduleData) {
       
-      let hours = 0
+      let totalHours = 0
+      const dailyHours = Array(7).fill(0)
       for (const block of scheduleData) {
         if (block.block_type !== "free") continue
 
         const start = block.start_time.split(":").map(Number)
         const end = block.end_time.split(":").map(Number)
 
-        hours += (end[0] - start[0]) + ((end[1] - start[1]) / 60)
-      }
+        const blockHours = (end[0] - start[0]) + ((end[1] - start[1]) / 60)
+        totalHours += blockHours
 
-      setFreeHours(hours)
+        const dow = Number(block.day_of_week) - 1
+        dailyHours[dow] += blockHours
+        
+      }
+      setFreeHours(totalHours)
+      setDailyFreeHours(dailyHours)
     }
 
     async function loadDashboardData() {
@@ -239,8 +251,8 @@ function DashboardPage() {
           <article style={styles.largePanel}>
             <div style={styles.panelHeader}>
               <div>
-                <p style={styles.panelLabel}>Schedule Preview</p>
-                <h2 style={styles.panelTitle}>This Week</h2>
+                <p style={styles.panelLabel}>Your Schedule</p>
+                <h2 style={styles.panelTitle}>Free Time Preview</h2>
               </div>
 
               <button type="button" style={styles.smallPanelButton}>
@@ -252,57 +264,71 @@ function DashboardPage() {
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Mon</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "65%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(0) }}></div>
                 </div>
-                <span style={styles.dayText}>3 blocks</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[0] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Tue</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "40%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(1) }}></div>
                 </div>
-                <span style={styles.dayText}>2 blocks</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[1] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Wed</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "75%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(2) }}></div>
                 </div>
-                <span style={styles.dayText}>4 blocks</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[2] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Thu</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "55%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(3) }}></div>
                 </div>
-                <span style={styles.dayText}>2 blocks</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[3] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Fri</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(4) }}></div>
                 </div>
-                <span style={styles.dayText}>1 block</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[4] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Sat</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(5) }}></div>
                 </div>
-                <span style={styles.dayText}>1 block</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[5] + " hours" }
+                </span>
               </div>
 
               <div style={styles.dayRow}>
                 <span style={styles.dayLabel}>Sun</span>
                 <div style={styles.dayTrack}>
-                  <div style={{ ...styles.dayFill, width: "30%" }}></div>
+                  <div style={{ ...styles.dayFill, width: getDayWidth(6) }}></div>
                 </div>
-                <span style={styles.dayText}>1 block</span>
+                <span style={styles.dayText}>
+                  { loading || !dailyFreeHours ? "..." : dailyFreeHours[6] + " hours" }
+                </span>
               </div>
             </div>
           </article>
