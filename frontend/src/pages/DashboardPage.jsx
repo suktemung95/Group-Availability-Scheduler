@@ -29,6 +29,14 @@ function DashboardPage() {
 
     return `${((dailyFreeHours[dayIndex] / 24) * 100).toFixed(0)}%`
   }
+  function getCircleDegrees(dayIndex) {
+    if (!freeHours || freeHours <= 0 || dayIndex == null) return 0
+
+    return (dailyFreeHours[dayIndex] / 24) * 360
+  }
+
+  const degrees = getCircleDegrees(bestDay)
+  
   useEffect(() => {
     async function fetchData(url, setCallback) {
       const token = localStorage.getItem("token")
@@ -168,7 +176,7 @@ function DashboardPage() {
           <div>
             <p style={styles.eyebrow}>Overview</p>
             <h1 style={styles.title}>
-              {loading || !user ? "Dashboard" : `${user.username}'s Dashboard`}
+              {loading || !user ? "Loading Dashboard..." : `${user.username}'s Dashboard`}
             </h1>
             <p style={styles.subtitle}>
               Manage your availability, groups, invites, and shared free time.
@@ -385,15 +393,25 @@ function DashboardPage() {
             </div>
 
             <div style={styles.overlapCard}>
-              <div style={styles.circleOuter}>
+              <div style={{
+                ...styles.circleOuter,
+                background: `conic-gradient(#dc2626 0deg ${degrees}deg, #2f3542 ${degrees}deg 360deg)`,
+                }}>
                 <div style={styles.circleInner}>
-                  <span style={styles.circleValue}>{getDayWidth(bestDay)}</span>
+                  <span style={styles.circleValue}>{
+                    loading || bestDay == null ? "0%" : getDayWidth(bestDay)}</span>
                   <span style={styles.circleLabel}>free</span>
                 </div>
               </div>
 
               <p style={styles.overlapText}>
-                Your freest day appears to be {intToDay(bestDay)}.
+                {
+                  loading || bestDay == null ? (
+                    "Loading..."
+                  ) : (
+                    `Your freest day appears to be ${intToDay(bestDay)}.`
+                  )
+                }
               </p>
             </div>
           </article>
