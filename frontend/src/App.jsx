@@ -3,7 +3,8 @@ import './App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import LoginPage from './pages/LoginPage'
-import DashboardPage from "./pages/DashboardPage"
+import OverviewPage from "./pages/dashboard/OverviewPage"
+import SchedulePage from './pages/dashboard/SchedulePage'
 
 function App() {
 
@@ -11,7 +12,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage /> } />
+        <Route path="/dashboard" element={<OverviewPage /> } />
+        <Route path="/dashboard/schedule" element={<SchedulePage /> } />
       </Routes>
     </BrowserRouter>
   )
