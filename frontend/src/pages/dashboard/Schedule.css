@@ -1,7 +1,7 @@
 .schedule-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* Top stat cards */
@@ -104,15 +104,23 @@
 
 /* Weekly calendar grid */
 
+.schedule-calendar-scroll {
+  max-height: 650px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid #2f3542;
+  border-radius: 14px;
+  background: #111318;
+}
+
 .schedule-calendar {
   position: relative;
   display: grid;
   grid-template-columns: 70px repeat(7, minmax(110px, 1fr));
   grid-auto-rows: 48px;
-  border: 1px solid #2f3542;
-  border-radius: 14px;
-  overflow: hidden;
+  min-width: 900px;
   background: #111318;
+  min-height: 1200px;
 }
 
 .schedule-corner {
@@ -170,6 +178,8 @@
   font-size: 12px;
   overflow: hidden;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  text-align: left;
+  cursor: pointer;
 }
 
 .schedule-block span {
@@ -180,6 +190,7 @@
 .schedule-block strong {
   display: block;
   font-size: 12px;
+  text-transform: capitalize;
 }
 
 .schedule-block-free {
@@ -204,6 +215,13 @@
 
 .selected-block {
   outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.details-empty {
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 /* 
@@ -397,4 +415,18 @@
 
 .legend-dot.private {
   background: #8b5cf6;
+}
+
+.schedule-error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #7f1d1d;
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+  font-weight: 700;
+}
+
+.schedule-timezone-button {
+  min-width: 72px;
 }

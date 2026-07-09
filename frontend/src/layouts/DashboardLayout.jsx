@@ -41,7 +41,7 @@ function DashboardLayout({ eyebrow, title, subtitle, activeNav, children }) {
                         onClick={() => navigate("/dashboard/schedule")}
                         >
                         <span className="nav-icon">□</span>
-                        Schedule
+                        Your Schedule
                     </button>
 
                     <button

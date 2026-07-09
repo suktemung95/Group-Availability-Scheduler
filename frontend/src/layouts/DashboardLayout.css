@@ -197,5 +197,6 @@
 }
 
 .dashboard-body {
-  padding: 28px;
+  padding: 20px;
+  padding-right: 28px;
 }
