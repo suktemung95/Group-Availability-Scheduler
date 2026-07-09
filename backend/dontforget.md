@@ -5,6 +5,8 @@
 - add more roles (maybe admin) and permissions in each role
 - remove member / delete group
 - make atomic transacation calls
+- overnight block options (let a block go past midnight in their respective timezone)
+- option to change timezone
 
 # next steps: 
 

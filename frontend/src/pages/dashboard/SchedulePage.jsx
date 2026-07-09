@@ -10,11 +10,46 @@ function SchedulePage() {
   const [selectedBlock, setSelectedBlock] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+
   const baseTimeZone = -4
   const [timeOffset, setTimeOffset] = useState(0)
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const blockTypes = ["free", "busy", "tentative", "private"]
+  const [editType, setEditType] = useState("free")
+  const [editStartTime, setEditStartTime] = useState("")
+  const [editEndTime, setEditEndTime] = useState("")
+  const [editLabel, setEditLabel] = useState("")
+
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   const fullDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+  const timeOptions = [
+    "00:00", "00:30",
+    "01:00", "01:30",
+    "02:00", "02:30",
+    "03:00", "03:30",
+    "04:00", "04:30",
+    "05:00", "05:30",
+    "06:00", "06:30",
+    "07:00", "07:30",
+    "08:00", "08:30",
+    "09:00", "09:30",
+    "10:00", "10:30",
+    "11:00", "11:30",
+    "12:00", "12:30",
+    "13:00", "13:30",
+    "14:00", "14:30",
+    "15:00", "15:30",
+    "16:00", "16:30",
+    "17:00", "17:30",
+    "18:00", "18:30",
+    "19:00", "19:30",
+    "20:00", "20:30",
+    "21:00", "21:30",
+    "22:00", "22:30",
+    "23:00", "23:30",
+  ]
 
   const hours = [
   "8 AM",
@@ -45,32 +80,33 @@ function SchedulePage() {
 
   const stats = calculateScheduleStats(schedule)
 
+  async function fetchSchedule() {
+    const token = localStorage.getItem("token")
+
+    if (!token) {
+      throw new Error("You are not logged in")
+    }
+
+    const response = await fetch("http://localhost:3000/schedule/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to load schedule")
+    }
+
+    setSchedule(data.data)
+
+    return data.data
+  }
   useEffect(() => {
     async function loadSchedule() {
       try {
-        const token = localStorage.getItem("token")
-
-        if (!token) {
-          throw new Error("You are not logged in")
-        }
-
-        const response = await fetch("http://localhost:3000/schedule/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to load schedule")
-        }
-
-        setSchedule(data.data)
-
-        if (data.data.length > 0) {
-          setSelectedBlock(data.data[0])
-        }
+        await fetchSchedule()
       } catch (error) {
         setError(error.message)
         console.log(error)
@@ -239,6 +275,73 @@ function SchedulePage() {
     const minute = String(minuteRaw).padStart(2, "0")
 
     return `${displayHour}:${minute} ${suffix}`
+  }
+
+  function cycleEditType() {
+    const currentIndex = blockTypes.indexOf(editType)
+    const nextIndex = (currentIndex + 1) % blockTypes.length
+    const nextType = blockTypes[nextIndex]
+
+    setEditType(nextType)
+
+    if (nextType === "private") {
+      setEditLabel("")
+    }
+  }
+
+  function isEditFormValid() {
+    if (!editType || !editStartTime || !editEndTime) return false
+    return editStartTime < editEndTime
+  }
+
+  async function handleEditSubmit(event) {
+    event.preventDefault()
+
+    if (!selectedBlock || !isEditFormValid()) return
+
+    try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        throw new Error("You are not logged in")
+      }
+
+      const response = await fetch(`http://localhost:3000/schedule/${selectedBlock.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          dow: Number(selectedBlock.day_of_week),
+          start: editStartTime,
+          end: editEndTime,
+          block_type: editType,
+          label: editType === "private" ? "" : editLabel
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update schedule block")
+      }
+
+      await fetchSchedule()
+
+      setIsEditModalOpen(false)
+    } catch (error) {
+      setError(error.message)
+      console.log(error)
+
+      if (
+        error.message === "Invalid or expired token" ||
+        error.message === "You are not logged in"
+      ) {
+        localStorage.removeItem("token")
+        navigate("/login")
+      }
+    }
   }
 
   return (
@@ -416,14 +519,19 @@ function SchedulePage() {
                     <span>Label</span>
                     <strong>{selectedBlock.label || "No label"}</strong>
                   </div>
-
-                  <div>
-                    <span>Notes</span>
-                    <strong>{selectedBlock.notes || "No notes"}</strong>
-                  </div>
                 </div>
 
-                <button type="button" className="details-primary-button">
+                <button
+                  type="button"
+                  className="details-primary-button"
+                  onClick={() => {
+                    setEditType(selectedBlock.block_type)
+                    setEditStartTime(selectedBlock.start_time.slice(0, 5))
+                    setEditEndTime(selectedBlock.end_time.slice(0, 5))
+                    setEditLabel(selectedBlock.label || "")
+                    setIsEditModalOpen(true)
+                  }}
+                >
                   Edit Block
                 </button>
 
@@ -448,6 +556,101 @@ function SchedulePage() {
           </aside>
         </section>
       </section>
+      {isEditModalOpen && selectedBlock && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setIsEditModalOpen(false)}
+        >
+          <form
+            className="edit-block-modal"
+            onSubmit={handleEditSubmit}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Edit Block</h2>
+
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <label className="modal-field">
+                <span>Block Type</span>
+                <button
+                  type="button"
+                  className={`type-cycle-button type-${editType}`}
+                  onClick={cycleEditType}
+                >
+                  {editType}
+                </button>
+              </label>
+
+              <div className="modal-time-row">
+                <label className="modal-field">
+                  <span>Start Time</span>
+                  <select
+                    value={editStartTime}
+                    onChange={(event) => setEditStartTime(event.target.value)}
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="modal-field">
+                  <span>End Time</span>
+                  <select
+                    value={editEndTime}
+                    onChange={(event) => setEditEndTime(event.target.value)}
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="modal-field">
+                <span>Label</span>
+                <textarea
+                  value={editType === "private" ? "" : editLabel}
+                  onChange={(event) => setEditLabel(event.target.value)}
+                  placeholder={
+                    editType === "private"
+                      ? "Private blocks cannot have labels"
+                      : "Add a label..."
+                  }
+                  rows="2"
+                  disabled={editType === "private"}
+                />
+              </label>
+
+              {!isEditFormValid() && (
+                <p className="modal-error">
+                  Start time must be before end time.
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="modal-submit-button"
+                disabled={!isEditFormValid()}
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </DashboardLayout>
   )
 }

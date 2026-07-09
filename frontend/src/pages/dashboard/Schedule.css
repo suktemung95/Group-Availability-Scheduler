@@ -430,3 +430,140 @@
 .schedule-timezone-button {
   min-width: 72px;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-block-modal {
+  width: min(480px, 90vw);
+  background: #20242d;
+  border: 1px solid #2f3542;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  padding: 22px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.modal-close-button {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-field span {
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.modal-field select,
+.modal-field textarea {
+  border: 1px solid #2f3542;
+  border-radius: 12px;
+  background: #171a21;
+  color: #ffffff;
+  padding: 11px 12px;
+  font-size: 14px;
+}
+
+.modal-field textarea {
+  resize: vertical;
+}
+
+.modal-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.type-cycle-button {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: #ffffff;
+  font-weight: 900;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.type-free {
+  background: #15803d;
+  border: 1px solid #22c55e;
+}
+
+.type-busy {
+  background: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+.type-tentative {
+  background: #b45309;
+  border: 1px solid #f59e0b;
+}
+
+.type-private {
+  background: #4c1d95;
+  border: 1px solid #8b5cf6;
+}
+
+.modal-submit-button {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.modal-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-error {
+  margin: 0;
+  color: #fecaca;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.modal-field textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

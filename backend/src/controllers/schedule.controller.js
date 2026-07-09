@@ -110,6 +110,15 @@ exports.patchSchedule = async (req, res) => {
             excludeBlockId: blockId
         });
 
+        console.log("Checking conflicts:", {
+            userId: id,
+            blockId,
+            dow: newDow,
+            start: newStart,
+            end: newEnd,
+            conflicts
+        })
+
         if (conflicts.length > 0) {
             return sendError(res, 409, "Schedule block overlaps with an existing block")
         }
@@ -124,7 +133,7 @@ exports.patchSchedule = async (req, res) => {
             id
         ])
 
-        return sendSuccess(res, 200, "Schedule block updated", updateResult[0])
+        return sendSuccess(res, 200, "Schedule block updated", result[0])
     } catch (err) {
         return sendError(res, 500, "Database error")
     }

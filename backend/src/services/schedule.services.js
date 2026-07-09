@@ -1,6 +1,6 @@
 const runQuery = require('../db/pool')
 
-exports.findScheduleConflicts = async ({userId, dow, start, end, excludeBlockId = null}) => {
+exports.findScheduleConflicts = async ({ userId, dow, start, end, excludeBlockId = null }) => {
     let query = `
         SELECT *
         FROM schedule_blocks 
@@ -8,16 +8,16 @@ exports.findScheduleConflicts = async ({userId, dow, start, end, excludeBlockId 
           AND day_of_week = $2 
           AND $3 < end_time 
           AND $4 > start_time
-    `;
+    `
 
-    const values = [userId, dow, start, end];
+    const values = [userId, dow, start, end]
 
     if (excludeBlockId !== null) {
-        query += ` AND id != $5`;
-        values.push(excludeBlockId);
+        query += ` AND id <> $5`
+        values.push(excludeBlockId)
     }
 
-    return await runQuery(query, values);
+    return await runQuery(query, values)
 }
 
 exports.validateScheduleInput = ({dow, start, end, block_type}) => {
