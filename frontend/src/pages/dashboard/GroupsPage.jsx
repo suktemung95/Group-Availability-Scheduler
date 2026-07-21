@@ -144,7 +144,7 @@ function GroupsPage() {
 
   async function fetchGroupOverlap(groupId) {
     const responseData = await apiRequest(
-      `${GROUPS_API_URL}/${groupId}/overlap`
+      `${GROUPS_API_URL}/${groupId}/groupOverlap`
     )
 
     const overlapData = getResponseData(responseData)

@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage'
 import OverviewPage from "./pages/dashboard/OverviewPage"
 import SchedulePage from './pages/dashboard/SchedulePage'
 import GroupsPage from './pages/dashboard/GroupsPage'
+import InvitesPage from './pages/dashboard/InvitesPage'
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<OverviewPage /> } />
         <Route path="/dashboard/schedule" element={<SchedulePage /> } />
         <Route path="/dashboard/groups" element={<GroupsPage /> } />
+        <Route path="/dashboard/invites" element={<InvitesPage /> } />
       </Routes>
     </BrowserRouter>
   )

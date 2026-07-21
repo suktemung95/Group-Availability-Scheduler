@@ -10,6 +10,11 @@ function DashboardLayout({ eyebrow, title, subtitle, activeNav, children }) {
         }
         return styles.navItem
     }
+
+    function handleLogout() {
+        localStorage.removeItem("token")
+        navigate("/login")
+    }
     return (
         <main className="dashboard-page">
             <aside className="dashboard-sidebar">
@@ -115,7 +120,7 @@ function DashboardLayout({ eyebrow, title, subtitle, activeNav, children }) {
                     <button type="button" className="icon-button">
                         ⌕
                     </button>
-                    <button type="button" className="logout-button">
+                    <button type="button" className="logout-button" onClick={handleLogout}>
                         Log Out
                     </button>
                     </div>
