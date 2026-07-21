@@ -28,6 +28,8 @@ function SchedulePage() {
   const [addEndTime, setAddEndTime] = useState("09:00")
   const [addLabel, setAddLabel] = useState("")
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   const fullDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -419,6 +421,50 @@ function SchedulePage() {
       }
     }
   }
+
+  async function handleDeleteBlock() {
+    if (!selectedBlock) return
+
+    try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        throw new Error("You are not logged in")
+      }
+
+      const response = await fetch(
+        `http://localhost:3000/schedule/${selectedBlock.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete schedule block")
+      }
+
+      await fetchSchedule()
+
+      setIsDeleteModalOpen(false)
+      setSelectedBlock(null)
+    } catch (error) {
+      setError(error.message)
+      console.log(error)
+
+      if (
+        error.message === "Invalid or expired token" ||
+        error.message === "You are not logged in"
+      ) {
+        localStorage.removeItem("token")
+        navigate("/login")
+      }
+    }
+  }
   return (
     <DashboardLayout
       activeNav="Schedule"
@@ -623,11 +669,11 @@ function SchedulePage() {
                   Edit Block
                 </button>
 
-                <button type="button" className="details-secondary-button">
-                  Duplicate Block
-                </button>
-
-                <button type="button" className="details-secondary-button">
+                <button
+                  type="button"
+                  className="details-secondary-button"
+                  onClick={() => setIsDeleteModalOpen(true)}
+                >
                   Delete Block
                 </button>
               </>
@@ -852,6 +898,63 @@ function SchedulePage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+      {isDeleteModalOpen && selectedBlock && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          <div
+            className="edit-block-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Delete Block</h2>
+
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p>
+                Are you sure you want to delete this block?
+              </p>
+
+              <p>
+                <strong>
+                  {fullDays[Number(selectedBlock.day_of_week) - 1]}
+                </strong>
+                {" — "}
+                {formatTime(selectedBlock.start_time)}
+                {" to "}
+                {formatTime(selectedBlock.end_time)}
+              </p>
+
+              <div className="delete-modal-actions">
+                <button
+                  type="button"
+                  className="details-secondary-button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="modal-delete-button"
+                  onClick={handleDeleteBlock}
+                >
+                  Delete Block
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </DashboardLayout>

@@ -567,3 +567,23 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-delete-button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #dc2626;
+  color: white;
+  cursor: pointer;
+}
+
+.modal-delete-button:hover {
+  background: #b91c1c;
+}
