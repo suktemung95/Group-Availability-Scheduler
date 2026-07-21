@@ -1,6 +1,7 @@
 const groupPool = require("../db/group.db")
 const userPool = require("../db/user.db")
-const userServices = require("../services/user.services")
+const schedulePool = require("../db/schedule.db")
+const scheduleServices = require("../services/schedule.services")
 const { sendSuccess, sendError } = require("../utils/responses")
 
 exports.postGroup = async (req, res) => {
@@ -86,7 +87,7 @@ exports.getGroupOverlap = async (req, res) => {
 
         const freeBlocks = await groupPool.getGroupFreeBlocks([groupId]);
 
-        const overlap = userServices.findGroupOverlap(freeBlocks, memberIds);
+        const overlap = scheduleServices.findGroupOverlap(freeBlocks, memberIds);
 
         return sendSuccess(res, 200, "Group overlap successfully returned", overlap)
     } catch (err) {
@@ -137,3 +138,22 @@ exports.getMutualMembers = async (req, res) => {
         return sendError(res, 500, "Database error")
     }
 }
+
+exports.getOverlap = async (req, res) => {
+    try {
+        const user1 = Number(req.user.userId);
+        const user2 = Number(req.params.userId);
+
+        if (Number.isNaN(user2)) {
+            return sendError(res, 400, "Invalid user id")
+        }
+
+        const freeBlocks = await schedulePool.getTwoUserFreeBlocks(user1, user2);
+
+        const overlap = scheduleServices.findGroupOverlap(freeBlocks, [user1, user2]);
+
+        return sendSuccess(res, 200, "Successfully returned overlap", overlap)
+    } catch (err) {
+        return sendError(res, 500, "Database error")
+    }
+};
