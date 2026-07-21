@@ -21,6 +21,13 @@ function SchedulePage() {
   const [editEndTime, setEditEndTime] = useState("")
   const [editLabel, setEditLabel] = useState("")
 
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [addDay, setAddDay] = useState("1")
+  const [addType, setAddType] = useState("free")
+  const [addStartTime, setAddStartTime] = useState("08:00")
+  const [addEndTime, setAddEndTime] = useState("09:00")
+  const [addLabel, setAddLabel] = useState("")
+
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   const fullDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -344,6 +351,74 @@ function SchedulePage() {
     }
   }
 
+  function isAddFormValid() {
+    if (!addDay || !addType || !addStartTime || !addEndTime) {
+      return false
+    }
+
+    return addStartTime < addEndTime
+  }
+
+  function cycleAddType() {
+    const currentIndex = blockTypes.indexOf(addType)
+    const nextIndex = (currentIndex + 1) % blockTypes.length
+    const nextType = blockTypes[nextIndex]
+
+    setAddType(nextType)
+
+    if (nextType === "private") {
+      setAddLabel("")
+    }
+  }
+
+  async function handleAddSubmit(event) {
+    event.preventDefault()
+
+    if (!isAddFormValid()) return
+
+    try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        throw new Error("You are not logged in")
+      }
+
+      const response = await fetch("http://localhost:3000/schedule/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          dow: Number(addDay),
+          start: addStartTime,
+          end: addEndTime,
+          block_type: addType,
+          label: addType === "private" ? "" : addLabel,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create schedule block")
+      }
+
+      await fetchSchedule()
+      setIsAddModalOpen(false)
+    } catch (error) {
+      setError(error.message)
+      console.log(error)
+
+      if (
+        error.message === "Invalid or expired token" ||
+        error.message === "You are not logged in"
+      ) {
+        localStorage.removeItem("token")
+        navigate("/login")
+      }
+    }
+  }
   return (
     <DashboardLayout
       activeNav="Schedule"
@@ -431,7 +506,20 @@ function SchedulePage() {
 
               <div className="schedule-actions">
                 <button type="button" className="schedule-small-button">Week</button>
-                <button type="button" className="schedule-primary-button">+ Add Block</button>
+                <button
+                  type="button"
+                  className="schedule-primary-button"
+                  onClick={() => {
+                    setAddDay("1")
+                    setAddType("free")
+                    setAddStartTime("08:00")
+                    setAddEndTime("09:00")
+                    setAddLabel("")
+                    setIsAddModalOpen(true)
+                  }}
+                >
+                  + Add Block
+                </button>
               </div>
             </div>
             <div className="schedule-calendar-scroll">
@@ -556,6 +644,121 @@ function SchedulePage() {
           </aside>
         </section>
       </section>
+      {isAddModalOpen && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setIsAddModalOpen(false)}
+        >
+          <form
+            className="edit-block-modal"
+            onSubmit={handleAddSubmit}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Add Block</h2>
+
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={() => setIsAddModalOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <label className="modal-field">
+                <span>Day</span>
+
+                <select
+                  value={addDay}
+                  onChange={(event) => setAddDay(event.target.value)}
+                >
+                  {fullDays.map((day, index) => (
+                    <option key={day} value={index + 1}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="modal-field">
+                <span>Block Type</span>
+
+                <button
+                  type="button"
+                  className={`type-cycle-button type-${addType}`}
+                  onClick={cycleAddType}
+                >
+                  {addType}
+                </button>
+              </label>
+
+              <div className="modal-time-row">
+                <label className="modal-field">
+                  <span>Start Time</span>
+
+                  <select
+                    value={addStartTime}
+                    onChange={(event) => setAddStartTime(event.target.value)}
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="modal-field">
+                  <span>End Time</span>
+
+                  <select
+                    value={addEndTime}
+                    onChange={(event) => setAddEndTime(event.target.value)}
+                  >
+                    {timeOptions.map((time) => (
+                      <option key={time} value={time}>
+                        {formatTime(time)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className="modal-field">
+                <span>Label</span>
+
+                <textarea
+                  value={addType === "private" ? "" : addLabel}
+                  onChange={(event) => setAddLabel(event.target.value)}
+                  placeholder={
+                    addType === "private"
+                      ? "Private blocks cannot have labels"
+                      : "Add a label..."
+                  }
+                  rows="2"
+                  disabled={addType === "private"}
+                />
+              </label>
+
+              {!isAddFormValid() && (
+                <p className="modal-error">
+                  Start time must be before end time.
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="modal-submit-button"
+                disabled={!isAddFormValid()}
+              >
+                Add Block
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {isEditModalOpen && selectedBlock && (
         <div
           className="modal-backdrop"
