@@ -1,0 +1,423 @@
+.overlaps-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Top stat cards */
+
+.overlaps-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.overlaps-stat-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #2f3542;
+  border-radius: 18px;
+  background: #20242d;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.22);
+}
+
+.overlaps-stat-label {
+  margin: 0 0 10px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.overlaps-stat-value {
+  margin: 0 0 6px;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 30px;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlaps-users-value {
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.overlaps-stat-text {
+  margin: 0;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+/* Main layout */
+
+.overlaps-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Calendar panel */
+
+.overlaps-calendar-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #2f3542;
+  border-radius: 18px;
+  background: #20242d;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.22);
+}
+
+.overlaps-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.overlaps-week-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlaps-small-button {
+  padding: 8px 10px;
+  border: 1px solid #2f3542;
+  border-radius: 10px;
+  background: #171a21;
+  color: #d1d5db;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.overlaps-small-button:hover:not(:disabled) {
+  border-color: #4b5563;
+  background: #20242d;
+  color: #ffffff;
+}
+
+.overlaps-small-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.overlaps-timezone-button {
+  min-width: 72px;
+}
+
+.overlaps-range {
+  margin: 0 0 0 8px;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+/* Calendar grid */
+
+.overlaps-calendar-scroll {
+  max-height: 650px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #2f3542;
+  border-radius: 14px;
+  background: #111318;
+}
+
+.overlaps-calendar {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    70px repeat(7, minmax(110px, 1fr));
+  grid-template-rows:
+    48px repeat(24, 48px);
+  min-width: 900px;
+  min-height: 1200px;
+  background: #111318;
+}
+
+.overlaps-corner {
+  background: #171a21;
+  border-right: 1px solid #2f3542;
+  border-bottom: 1px solid #2f3542;
+}
+
+.overlaps-day-header {
+  padding: 8px;
+  border-right: 1px solid #2f3542;
+  border-bottom: 1px solid #2f3542;
+  background: #171a21;
+  text-align: center;
+}
+
+.overlaps-day-header p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.overlaps-day-header span {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.overlaps-hour-label {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  border-right: 1px solid #2f3542;
+  border-bottom: 1px solid #20242d;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.overlaps-cell {
+  min-width: 0;
+  border-right: 1px solid #20242d;
+  border-bottom: 1px solid #20242d;
+}
+
+/* Overlap blocks */
+
+.overlap-block {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  box-sizing: border-box;
+  min-height: 24px;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid #22c55e;
+  border-radius: 8px;
+  background: #15803d;
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.overlap-block span {
+  display: block;
+  margin-bottom: 4px;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlap-block strong {
+  display: block;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.overlaps-calendar-message {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #2f3542;
+  border-radius: 12px;
+  background: #171a21;
+  color: #9ca3af;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Selector panel */
+
+.overlaps-selector-panel {
+  min-height: 520px;
+  padding: 18px;
+  border: 1px solid #2f3542;
+  border-radius: 18px;
+  background: #20242d;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.22);
+}
+
+.overlaps-selector-header {
+  margin-bottom: 18px;
+}
+
+.overlaps-selector-header h2 {
+  margin: 12px 0 0;
+  color: #ffffff;
+  font-size: 20px;
+}
+
+.overlaps-selector-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.overlaps-selector-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overlaps-selector-field span {
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.overlaps-selector-field select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #2f3542;
+  border-radius: 12px;
+  background: #171a21;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.overlaps-selector-field select:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+.overlaps-selection-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.overlaps-selection-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2f3542;
+}
+
+.overlaps-selection-summary span {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.overlaps-selection-summary strong {
+  max-width: 60%;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 13px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overlaps-selector-empty {
+  display: flex;
+  min-height: 300px;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Legend */
+
+.overlaps-legend {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #2f3542;
+}
+
+.overlaps-legend h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.overlaps-legend p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: #d1d5db;
+  font-size: 13px;
+}
+
+.overlaps-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: #22c55e;
+}
+
+/* Errors */
+
+.overlaps-error {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #7f1d1d;
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+  font-weight: 700;
+}
+
+/* Responsive */
+
+@media (max-width: 1100px) {
+  .overlaps-stats-row {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .overlaps-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overlaps-selector-panel {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .overlaps-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .overlaps-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .overlaps-week-controls {
+    flex-wrap: wrap;
+  }
+
+  .overlaps-range {
+    width: 100%;
+    margin: 6px 0 0;
+  }
+
+  .overlaps-selection-summary > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .overlaps-selection-summary strong {
+    max-width: 100%;
+    text-align: left;
+  }
+}

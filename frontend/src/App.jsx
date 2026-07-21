@@ -7,6 +7,7 @@ import OverviewPage from "./pages/dashboard/OverviewPage"
 import SchedulePage from './pages/dashboard/SchedulePage'
 import GroupsPage from './pages/dashboard/GroupsPage'
 import InvitesPage from './pages/dashboard/InvitesPage'
+import OverlapsPage from './pages/dashboard/OverlapsPage'
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard/schedule" element={<SchedulePage /> } />
         <Route path="/dashboard/groups" element={<GroupsPage /> } />
         <Route path="/dashboard/invites" element={<InvitesPage /> } />
+        <Route path="/dashboard/overlap" element={<OverlapsPage /> } />
       </Routes>
     </BrowserRouter>
   )
