@@ -9,7 +9,7 @@
 - option to change timezone
 
 # next steps: 
-
+- delete group when members = 0
 
 # edge cases
 - cannot invite yourself

@@ -1,4 +1,5 @@
 const groupPool = require("../db/group.db")
+const userPool = require("../db/user.db")
 const userServices = require("../services/user.services")
 const { sendSuccess, sendError } = require("../utils/responses")
 
@@ -7,8 +8,8 @@ exports.postGroup = async (req, res) => {
     try {
         // make group
         const user_id = req.user.userId
-        const { name } = req.body
-        const groupResult = await groupPool.makeGroup([name, user_id])
+        const { name, description } = req.body
+        const groupResult = await groupPool.makeGroup([name, user_id, description])
         const group_id = groupResult[0].id
         
         // add self to group
@@ -96,10 +97,13 @@ exports.getGroupOverlap = async (req, res) => {
 exports.inviteUser = async (req, res) => {
     try {
         const inviter = req.user.userId
-        const invitee = req.params.userId
+        const invitee_name = req.params.username
         const groupId = req.params.groupId
 
-        const result = await groupPool.makeInvite([inviter, invitee, groupId])
+        const invitees = await userPool.getMeByName([invitee_name])
+        const invitee = invitees[0]
+
+        const result = await groupPool.makeInvite([inviter, invitee.id, groupId])
 
         if (result.length === 0) {
             return sendError(res, 400, "Failed to invite user")
@@ -115,6 +119,18 @@ exports.getUserGroups = async (req, res) => {
     try {
         const id = req.user.userId
         const result = await groupPool.getUserGroups([id])
+
+        return sendSuccess(res, 200, "Successfully returned user groups", result)
+    } catch (err) {
+        return sendError(res, 500, "Database error")
+    }
+}
+
+exports.getMutualMembers = async (req, res) => {
+    try {
+        const id = req.user.userId
+
+        const result = await groupPool.getMutualMembers([id])
 
         return sendSuccess(res, 200, "Successfully returned user groups", result)
     } catch (err) {

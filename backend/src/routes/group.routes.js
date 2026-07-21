@@ -10,8 +10,9 @@ router.post("/:groupId/join", auth, groupCon.joinGroup)
 router.post("/:groupId/leave", auth, verifyMembership, groupCon.leaveGroup)
 router.get("/:groupId/members", auth, verifyMembership, groupCon.getGroupMembers)
 router.get("/:groupId/overlap", auth, verifyMembership, groupCon.getGroupOverlap)
-router.post("/:groupId/invite/:userId", auth,
+router.post("/:groupId/invite/:username", auth,
     verifyMembership, verifyOwnership, groupCon.inviteUser)
 router.get("/list", auth, groupCon.getUserGroups)
+router.get("/mutualMembers", auth, groupCon.getMutualMembers)
 
 module.exports = router

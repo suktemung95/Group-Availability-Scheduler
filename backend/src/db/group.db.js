@@ -1,7 +1,7 @@
 const runQuery = require('./pool')
 exports.makeGroup = async (values) => {
-    const query = `INSERT INTO groups (name, created_by)
-        VALUES ($1, $2) RETURNING *`
+    const query = `INSERT INTO groups (name, created_by, description)
+        VALUES ($1, $2, $3) RETURNING *`
     const result = await runQuery(query, values)
     return result
 }
@@ -25,8 +25,18 @@ exports.leaveGroup = async (values) => {
 }
 
 exports.getGroupMembers = async (values) => {
-    const query = `SELECT user_id FROM group_members
-        WHERE group_id = $1 ORDER BY joined_at`
+    const query = `
+    SELECT
+        gm.user_id,
+        gm.role,
+        gm.joined_at,
+        u.username,
+        u.timezone
+    FROM group_members gm
+    JOIN users u ON u.id = gm.user_id
+    WHERE gm.group_id = $1
+    ORDER BY gm.joined_at;`
+
     const members = await runQuery(query, values)
     return members
 }
@@ -54,8 +64,34 @@ exports.makeInvite = async (values) => {
 }
 
 exports.getUserGroups = async (values) => {
-    const query = `SELECT * FROM group_members 
-        WHERE user_id = $1 ORDER BY group_id ASC`
+  const query = `
+    SELECT
+      gm.group_id,
+      gm.user_id,
+      gm.joined_at,
+      gm.role,
+      g.name,
+      g.description,
+      g.created_by,
+      g.created_at
+    FROM group_members gm
+    JOIN groups g ON g.id = gm.group_id
+    WHERE gm.user_id = $1
+    ORDER BY gm.group_id ASC
+  `
 
+  return await runQuery(query, values)
+}
+
+exports.getMutualMembers = async (values) => {
+    const query = `
+        SELECT DISTINCT g2.user_id
+        FROM group_members AS g
+        JOIN group_members AS g2
+            ON g2.group_id = g.group_id
+        WHERE g.user_id = $1
+        AND g2.user_id <> $1
+        ORDER BY g2.user_id;`
+    
     return await runQuery(query, values)
 }

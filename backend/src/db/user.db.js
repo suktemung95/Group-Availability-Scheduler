@@ -7,6 +7,14 @@ exports.getMe = async (values) => {
         `
     return await runQuery(query, values)
 }
+
+exports.getMeByName = async (values) => {
+    const query = `
+        SELECT id, username, created_at
+        FROM users WHERE username = $1
+        `
+    return await runQuery(query, values)
+}
 exports.getTwoUserFreeBlocks = async (user1, user2) => {
 
     const timeQuery = `SELECT user_id, day_of_week, start_time, end_time, block_type

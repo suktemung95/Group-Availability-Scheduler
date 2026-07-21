@@ -2,13 +2,16 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-    "username": "LickWidFyre2",
+    "username": "LickWidFyre",
     "password": "password"
 }
 ###
 GET http://localhost:3000/users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyIiwiaWF0IjoxNzgzMzAxNjk1LCJleHAiOjE3ODMzMDUyOTV9.O7PUOBL64W8QkuM4E4bkEldip1NynRKE9Qtmn8R64w4
 
+###
+GET http://localhost:3000/schedule
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgzMzU2NTUxLCJleHAiOjE3ODMzNjAxNTF9.eOU9TpxnYt_eiz3y_DzFoiXtTas1lhN-S2s6JNQnYpk
 ###
 GET http://localhost:3000/users/2/overlap
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyOTIyNDA5LCJleHAiOjE3ODI5MjYwMDl9.kpHMH4U8w-QriAV6c0HpMpuD9OJuuFh_1R2mrCBFDMI
@@ -23,12 +26,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwia
 Content-Type: application/json
 
 ###
-PATCH http://localhost:3000/schedule/11
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgyODM1OTkxLCJleHAiOjE3ODI4Mzk1OTF9.6vD52T5ZG0QLrGIAOgpNJ5dycj1qh392Tdqn0zldZTc
+POST http://localhost:3000/schedule/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxIiwiaWF0IjoxNzgzMzU5ODIzLCJleHAiOjE3ODMzNjM0MjN9.fhYP9UjKKEZ2tTXQyHm9oEtqs4Bdz_p8NGc0Emuy9MY
 Content-Type: application/json
 
 {
-    "block_type": "tentative"
+    "dow": 7,
+    "start": "20:30-04",
+    "end":  "24:00-04",
+    "block_type": "free",
+    "label": "free"
 }
 
 ###

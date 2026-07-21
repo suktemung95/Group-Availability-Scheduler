@@ -2,8 +2,22 @@ const runQuery = require("./pool")
 
 exports.getInvites = async (values) => {
     const query = `
-        SELECT * FROM group_invites
-        WHERE invitee_id = $1
+        SELECT
+            gi.id,
+            gi.created_at,
+            gi.inviter_id,
+            gi.invitee_id,
+            gi.group_id,
+            g.name AS group_name,
+            g.description AS group_description,
+            u.username AS inviter_username
+        FROM group_invites gi
+        JOIN groups g
+        ON g.id = gi.group_id
+        JOIN users u
+        ON u.id = gi.inviter_id
+        WHERE gi.invitee_id = $1
+        ORDER BY gi.created_at DESC
     `
 
     return await runQuery(query, values)
