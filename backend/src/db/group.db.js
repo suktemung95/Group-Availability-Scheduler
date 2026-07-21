@@ -85,13 +85,17 @@ exports.getUserGroups = async (values) => {
 
 exports.getMutualMembers = async (values) => {
     const query = `
-        SELECT DISTINCT g2.user_id
+        SELECT DISTINCT
+            g2.user_id,
+            u.username
         FROM group_members AS g
         JOIN group_members AS g2
             ON g2.group_id = g.group_id
+        JOIN users AS u
+            ON u.id = g2.user_id
         WHERE g.user_id = $1
         AND g2.user_id <> $1
-        ORDER BY g2.user_id;`
+        ORDER BY u.username;`
     
     return await runQuery(query, values)
 }
