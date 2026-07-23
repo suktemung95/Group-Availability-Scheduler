@@ -307,6 +307,12 @@ function SchedulePage() {
     if (!selectedBlock || !isEditFormValid()) return
 
     try {
+      const token = localStorage.getItem("token")
+
+      if (!token) {
+        throw new Error("You are not logged in")
+      }
+
       const response = await apiRequest(`${SCHEDULE_API_URL}/${selectedBlock.id}`, {
         method: "PATCH",
         headers: {
