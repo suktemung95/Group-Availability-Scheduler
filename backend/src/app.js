@@ -8,7 +8,7 @@ require("dotenv").config()
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:4173",
-    "https://group-availability-scheduler-frontend.onrender.com"
+    process.env.FRONTEND_URL
 ].filter(Boolean)
 
 const corsOptions = {
@@ -32,7 +32,6 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions))
-
 app.use(express.json())
 
 const authRoutes = require("./routes/auth.routes")
