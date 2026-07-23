@@ -43,18 +43,18 @@ const inviteRoutes = require("./routes/invite.routes")
 
 const auth = require("./middleware/auth")
 
-app.use("/auth", authRoutes)
-app.use("/users", userRoutes)
-app.use("/groups", groupRoutes)
-app.use("/schedule", scheduleRoutes)
-app.use("/invites", inviteRoutes)
-
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "GroupAvail API is running",
   })
 })
+
+app.use("/auth", authRoutes)
+app.use("/users", userRoutes)
+app.use("/groups", groupRoutes)
+app.use("/schedule", scheduleRoutes)
+app.use("/invites", inviteRoutes)
 
 app.listen(port, '0.0.0.0', () => {
     console.log("App listening on port:", port)
