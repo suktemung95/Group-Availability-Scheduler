@@ -1,13 +1,38 @@
 const express = require('express')
 const app = express()
-require("dotenv").config()
 const cors = require("cors")
+const port = process.env.PORT || 3000
 
-const port = 3000
+require("dotenv").config()
 
-app.use(cors({
-    origin: "http://localhost:5173"
-}));
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    process.env.FRONTEND_URL
+].filter(Boolean)
+
+const corsOptions = {
+  origin(requestOrigin, callback) {
+    const hasNoOrigin = !requestOrigin
+    const isAllowed =
+      allowedOrigins.includes(requestOrigin)
+
+    if (hasNoOrigin || isAllowed) {
+      return callback(null, true)
+    }
+
+    return callback(
+      new Error(
+        `CORS denied origin: ${requestOrigin}`
+      )
+    )
+  },
+
+  credentials: true,
+}
+
+app.use(cors(corsOptions))
+
 app.use(express.json())
 
 const authRoutes = require("./routes/auth.routes")
@@ -24,10 +49,13 @@ app.use("/groups", groupRoutes)
 app.use("/schedule", scheduleRoutes)
 app.use("/invites", inviteRoutes)
 
-app.get("/me", auth, (req, res) => {
-    res.status(200).json({ user: req.user.userId })
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "GroupAvail API is running",
+  })
 })
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
     console.log("App listening on port:", port)
 })

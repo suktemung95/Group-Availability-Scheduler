@@ -1,5 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import apiRequest from "../services/api"
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function LoginPage() {
     const [username, setUsername] = useState("")
@@ -12,12 +15,13 @@ function LoginPage() {
     const handleSubmit = async (e) => {
         try {
             e.preventDefault()
-            console.log({ username, password })
         
             setLoading(true)
             setError("")
+
+            console.log(API_URL)
         
-            const response = await fetch("http://localhost:3000/auth/login", {
+            const response = await apiRequest(`/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -26,20 +30,9 @@ function LoginPage() {
                     username,
                     password,
                 }),
-            })
-            
-            
-            console.log("Response:", response)
-            
-            const data = await response.json()
-            console.log("Data:", data)
-            
-            if (!response.ok) {
-                setError(data.message || "Login failed")
-                throw new Error(data.message || "Login failed")
-            }
+            })            
 
-            localStorage.setItem("token", data.data)
+            localStorage.setItem("token", response.data)
 
             navigate('/dashboard')
         } catch (error) {

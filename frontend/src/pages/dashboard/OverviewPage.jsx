@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardLayout from '../../layouts/DashboardLayout'
+import apiRequest from "../../services/api"
 function DashboardPage() {
 
   const navigate = useNavigate()
@@ -25,11 +26,13 @@ function DashboardPage() {
     ]
     return conversion[dayIndex]
   }
+
   function getDayWidth(dayIndex) {
     if (!freeHours || freeHours <= 0) return "0%"
 
     return `${((dailyFreeHours[dayIndex] / 24) * 100).toFixed(0)}%`
   }
+
   function getCircleDegrees(dayIndex) {
     if (!freeHours || freeHours <= 0 || dayIndex == null) return 0
 
@@ -40,25 +43,9 @@ function DashboardPage() {
   
   useEffect(() => {
     async function fetchData(url, setCallback) {
-      const token = localStorage.getItem("token")
 
-      if (!token) {
-        throw new Error("You are not logged in")
-      }
+      const data = await apiRequest(url)
 
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to load user")
-      }
-
-      console.log("Url:", url, "\nReturned:", data.data)
       setCallback(data.data)
       return data.data
     }
@@ -90,10 +77,10 @@ function DashboardPage() {
 
     async function loadDashboardData() {
       try {
-        await fetchData("http://localhost:3000/users/me", setUser)
-        const scheduleData = await fetchData("http://localhost:3000/schedule/", setSchedule)
-        await fetchData("http://localhost:3000/groups/list", setGroups)
-        await fetchData("http://localhost:3000/invites/list", setInvites)
+        await fetchData("/users/me", setUser)
+        const scheduleData = await fetchData("/schedule", setSchedule)
+        await fetchData("/groups/list", setGroups)
+        await fetchData("/invites/list", setInvites)
 
         countFreeHours(scheduleData)
       } catch (error) {

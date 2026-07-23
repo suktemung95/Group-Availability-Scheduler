@@ -2,8 +2,9 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardLayout from "../../layouts/DashboardLayout"
 import "./Groups.css"
+import apiRequest from "../../services/api"
 
-const GROUPS_API_URL = "http://localhost:3000/groups"
+const GROUPS_API_URL = `/groups`
 
 function GroupsPage() {
   const navigate = useNavigate()
@@ -33,44 +34,6 @@ function GroupsPage() {
     fetchGroups()
   }, [])
 
-  async function apiRequest(url, options = {}) {
-    const token = localStorage.getItem("token")
-
-    if (!token) {
-      throw new Error("You are not logged in")
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...(options.body
-          ? {
-              "Content-Type": "application/json",
-            }
-          : {}),
-        Authorization: `Bearer ${token}`,
-        ...options.headers,
-      },
-    })
-
-    let responseData = null
-
-    try {
-      responseData = await response.json()
-    } catch {
-      responseData = null
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        responseData?.message ||
-          responseData?.error ||
-          `Request failed with status ${response.status}`
-      )
-    }
-
-    return responseData
-  }
 
   function getResponseData(responseData) {
     if (!responseData) return null

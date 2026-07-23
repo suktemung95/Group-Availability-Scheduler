@@ -2,6 +2,9 @@ import { Fragment, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import DashboardLayout from "../../layouts/DashboardLayout"
 import "./Schedule.css"
+import apiRequest from "../../services/api"
+
+const SCHEDULE_API_URL = `/schedule`
 
 function SchedulePage() {
   const navigate = useNavigate()
@@ -96,17 +99,11 @@ function SchedulePage() {
       throw new Error("You are not logged in")
     }
 
-    const response = await fetch("http://localhost:3000/schedule/", {
+    const data = await apiRequest(SCHEDULE_API_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to load schedule")
-    }
 
     setSchedule(data.data)
 
@@ -315,7 +312,7 @@ function SchedulePage() {
         throw new Error("You are not logged in")
       }
 
-      const response = await fetch(`http://localhost:3000/schedule/${selectedBlock.id}`, {
+      const response = await fetch(`${SCHEDULE_API_URL}/${selectedBlock.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -385,7 +382,7 @@ function SchedulePage() {
         throw new Error("You are not logged in")
       }
 
-      const response = await fetch("http://localhost:3000/schedule/", {
+      const response = await fetch(SCHEDULE_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -433,7 +430,7 @@ function SchedulePage() {
       }
 
       const response = await fetch(
-        `http://localhost:3000/schedule/${selectedBlock.id}`,
+        `${SCHEDULE_API_URL}/${selectedBlock.id}`,
         {
           method: "DELETE",
           headers: {
