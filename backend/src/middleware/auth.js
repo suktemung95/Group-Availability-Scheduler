@@ -21,7 +21,7 @@ function authMiddleware(req, res, next) {
         next()
     }
     catch (err) {
-        return sendError(res, 403, "Invalid or expired token")
+        return sendError(res, 401, "Invalid or expired token")
     }
 }
 
