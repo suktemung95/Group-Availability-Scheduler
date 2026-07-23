@@ -307,13 +307,7 @@ function SchedulePage() {
     if (!selectedBlock || !isEditFormValid()) return
 
     try {
-      const token = localStorage.getItem("token")
-
-      if (!token) {
-        throw new Error("You are not logged in")
-      }
-
-      const response = await fetch(`${SCHEDULE_API_URL}/${selectedBlock.id}`, {
+      const response = await apiRequest(`${SCHEDULE_API_URL}/${selectedBlock.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -327,12 +321,6 @@ function SchedulePage() {
           label: editType === "private" ? "" : editLabel
         }),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update schedule block")
-      }
 
       await fetchSchedule()
 
@@ -451,6 +439,7 @@ function SchedulePage() {
       }
     }
   }
+
   return (
     <DashboardLayout
       activeNav="Schedule"
