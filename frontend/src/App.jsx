@@ -8,6 +8,7 @@ import SchedulePage from './pages/dashboard/SchedulePage'
 import GroupsPage from './pages/dashboard/GroupsPage'
 import InvitesPage from './pages/dashboard/InvitesPage'
 import OverlapsPage from './pages/dashboard/OverlapsPage'
+import SignupPage from './pages/SignupPage'
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<OverviewPage /> } />
         <Route path="/dashboard/schedule" element={<SchedulePage /> } />
         <Route path="/dashboard/groups" element={<GroupsPage /> } />
