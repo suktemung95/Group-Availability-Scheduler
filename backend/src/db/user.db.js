@@ -9,11 +9,13 @@ exports.getMe = async (values) => {
 }
 
 exports.getMeByName = async (values) => {
-    const query = `
-        SELECT id, username, created_at
-        FROM users WHERE username = $1
-        `
-    return await runQuery(query, values)
+  const query = `
+    SELECT id, username, created_at
+    FROM users
+    WHERE LOWER(username) = LOWER($1)
+    LIMIT 1
+  `
+  return await runQuery(query, values)
 }
 
 

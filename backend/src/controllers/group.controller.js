@@ -96,24 +96,56 @@ exports.getGroupOverlap = async (req, res) => {
 };
 
 exports.inviteUser = async (req, res) => {
-    try {
-        const inviter = req.user.userId
-        const invitee_name = req.params.username
-        const groupId = req.params.groupId
+  try {
+    const inviterId = req.user.userId
+    const inviteeName = req.params.username
+    const groupId = Number(req.params.groupId)
 
-        const invitees = await userPool.getMeByName([invitee_name])
-        const invitee = invitees[0]
-
-        const result = await groupPool.makeInvite([inviter, invitee.id, groupId])
-
-        if (result.length === 0) {
-            return sendError(res, 400, "Failed to invite user")
-        }
-        
-        return sendSuccess(res, 200, "Successfully invited user to group", result[0])
-        } catch (err) {
-        return sendError(res, 500, "Database error")
+    if (!inviteeName || !groupId) {
+      return sendError(res, 400, "Username and group ID are required")
     }
+
+    const invitees = await userPool.getMeByName([inviteeName])
+
+    if (invitees.length === 0) {
+      return sendError(res, 404, "User not found")
+    }
+
+    const invitee = invitees[0]
+
+    if (Number(invitee.id) === Number(inviterId)) {
+      return sendError(res, 400, "You cannot invite yourself")
+    }
+
+    const result = await groupPool.makeInvite([
+      inviterId,
+      invitee.id,
+      groupId,
+    ])
+
+    if (result.length === 0) {
+      return sendError(res, 400, "Failed to invite user")
+    }
+
+    return sendSuccess(
+      res,
+      201,
+      "Successfully invited user to group",
+      result[0]
+    )
+  } catch (err) {
+    console.error("Invite user error:", err)
+
+    if (err.code === "23505") {
+      return sendError(res, 409, "This user has already been invited")
+    }
+
+    if (err.code === "23503") {
+      return sendError(res, 400, "Invalid user or group")
+    }
+
+    return sendError(res, 500, "Database error")
+  }
 }
 
 exports.getUserGroups = async (req, res) => {
