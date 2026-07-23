@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL
 
-async function apiRequest(path, options = {}) {
+async function apiRequest(path, options = {}, config = {}) {
   
   const token = localStorage.getItem("token")
 
@@ -31,6 +31,21 @@ async function apiRequest(path, options = {}) {
 
   const responseData =
     await response.json().catch(() => null)
+  
+  
+  const shouldLogoutOnUnauthorized =
+    config.logoutOnUnauthorized !== false
+    
+  
+  if (response.status === 401 && shouldLogoutOnUnauthorized) {
+    localStorage.removeItem("token")
+
+    window.location.href = "/login"
+    
+    throw new Error(
+      data?.message || "Your session has expired"
+    )
+  }
 
   if (!response.ok) {
     throw new Error(

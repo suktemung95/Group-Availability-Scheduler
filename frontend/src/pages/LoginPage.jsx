@@ -32,6 +32,9 @@ function LoginPage() {
           username,
           password,
         }),
+      },
+      {
+        logoutOnUnauthorized: false,
       })
 
       const token = response?.data
