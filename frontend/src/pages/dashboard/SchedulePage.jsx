@@ -109,6 +109,7 @@ function SchedulePage() {
 
     return data.data
   }
+
   useEffect(() => {
     async function loadSchedule() {
       try {
@@ -382,7 +383,7 @@ function SchedulePage() {
         throw new Error("You are not logged in")
       }
 
-      const response = await fetch(SCHEDULE_API_URL, {
+      const response = await apiRequest(SCHEDULE_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -396,12 +397,6 @@ function SchedulePage() {
           label: addType === "private" ? "" : addLabel,
         }),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create schedule block")
-      }
 
       await fetchSchedule()
       setIsAddModalOpen(false)
@@ -429,7 +424,7 @@ function SchedulePage() {
         throw new Error("You are not logged in")
       }
 
-      const response = await fetch(
+      const response = await apiRequest(
         `${SCHEDULE_API_URL}/${selectedBlock.id}`,
         {
           method: "DELETE",
@@ -438,12 +433,6 @@ function SchedulePage() {
           },
         }
       )
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete schedule block")
-      }
 
       await fetchSchedule()
 

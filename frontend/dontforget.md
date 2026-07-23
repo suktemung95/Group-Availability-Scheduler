@@ -2,7 +2,8 @@
 - handle no token error
 
 # next
-- pop ups for block_details DELETE block (idk about duplicate yet)
+- kick or promote groupmates from GroupsPage
+- fix recent groups in overview
 
 
 # dontforget
