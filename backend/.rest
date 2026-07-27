@@ -47,3 +47,12 @@ Content-Type: application/json
 POST http://localhost:3000/invites/2/accept
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyIiwiaWF0IjoxNzgzMDA2Nzk5LCJleHAiOjE3ODMwMTAzOTl9.QniNmLsnyDaLub4Thmq1awz5iBlovgOIhJDBbApQeIk
 Content-Type: application/json
+
+###
+POST https://group-availability-scheduler.onrender.com/auth/login
+Content-Type: application/json
+
+{
+    "username": "LickWidFyre",
+    "password": "password"
+}

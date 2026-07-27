@@ -16,7 +16,6 @@ exports.getSchedule = async (req, res) => {
 
 exports.postSchedule = async (req, res) => {
 
-    console.log("Posting schedule")
     try {
         const id = Number(req.user.userId)
         const { dow, start, end, block_type, label } = req.body
@@ -41,6 +40,7 @@ exports.postSchedule = async (req, res) => {
         const result = await schedulePool.postSchedule([id, dow, start, end, block_type, label])
         return sendSuccess(res, 201, "Added block to schedule", result[0])
     } catch (err) {
+        console.log(err)
         return sendError(res, 500, "Database error")
     }
 }

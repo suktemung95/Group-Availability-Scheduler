@@ -25,3 +25,10 @@
 # untested
 - invitePool.getInvite in verifyInvited()
 - getInvites in invite.controller.js
+
+# tests
+Overlap
+✓ normal overlap
+✓ no overlap
+✓ multiple intervals
+✓ midnight boundary
