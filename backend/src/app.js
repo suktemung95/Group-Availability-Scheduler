@@ -1,16 +1,6 @@
 const express = require('express')
 const app = express()
 const cors = require("cors")
-const dotenv = require("dotenv")
-const path = require("path")
-
-dotenv.config({
-  path:
-    process.env.NODE_ENV === "test"
-      ? path.resolve(".env.test")
-      : path.resolve(".env"),
-  quiet: true,
-})
 
 const allowedOrigins = [
     "http://localhost:5173",
