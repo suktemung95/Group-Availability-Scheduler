@@ -64,4 +64,4 @@ jobs:
       - name: Build frontend
         run: npm run build
         env:
-          VITE_API_URL: https://groupavail-api.onrender.com
+          VITE_API_URL: https://group-availability-scheduler-frontend.onrender.com/
