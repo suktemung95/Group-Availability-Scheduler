@@ -1,9 +1,16 @@
 const express = require('express')
 const app = express()
 const cors = require("cors")
-const port = process.env.PORT || 3000
+const dotenv = require("dotenv")
+const path = require("path")
 
-require("dotenv").config()
+dotenv.config({
+  path:
+    process.env.NODE_ENV === "test"
+      ? path.resolve(".env.test")
+      : path.resolve(".env"),
+  quiet: true,
+})
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -55,6 +62,4 @@ app.use("/groups", groupRoutes)
 app.use("/schedule", scheduleRoutes)
 app.use("/invites", inviteRoutes)
 
-app.listen(port, '0.0.0.0', () => {
-    console.log("App listening on port:", port)
-})
+module.exports = app

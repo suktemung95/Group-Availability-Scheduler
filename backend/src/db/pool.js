@@ -12,4 +12,8 @@ const runQuery = async (query, values) => {
   return result.rows;
 };
 
+runQuery.closePool = async () => {
+  await pool.end()
+}
+
 module.exports = runQuery;
