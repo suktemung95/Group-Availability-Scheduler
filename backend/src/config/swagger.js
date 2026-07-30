@@ -1,6 +1,5 @@
 const swaggerJsdoc = require("swagger-jsdoc")
 const path = require("path")
-
 const options = {
   definition: {
     openapi: "3.0.3",
@@ -76,16 +75,38 @@ const options = {
             },
           },
         },
-        
+        RegisterRequest: {
+          type: "object",
+          required: [
+            "username",
+            "password",
+          ],
+           properties: {
+            username: {
+              type: "string",
+              minLength: 1,
+              example: "alice",
+            },
+            password: {
+              type: "string",
+              format: "password",
+              minLength: 8,
+              example: "password123",
+            },
+          },
+        },
       },
     },
   },
 
-  apis: [
-    path.resolve(__dirname, "../routes/*.js"),
-  ]
+  apis: ["./src/routes/**/*.js"]
 }
 
 const swaggerSpec = swaggerJsdoc(options)
 
+console.log(__dirname)
+console.log(
+  "Swagger paths:",
+  Object.keys(swaggerSpec.paths ?? {})
+)
 module.exports = swaggerSpec

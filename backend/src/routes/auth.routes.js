@@ -16,18 +16,7 @@ const authController = require("../controllers/auth.controller");
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - username
- *               - password
- *             properties:
- *               username:
- *                 type: string
- *                 example: alice
- *               password:
- *                 type: string
- *                 format: password
- *                 example: password123
+ *             $ref: '#/components/schemas/RegisterRequest'
  *     responses:
  *       201:
  *         description: User successfully registered
