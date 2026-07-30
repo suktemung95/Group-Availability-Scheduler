@@ -2,9 +2,25 @@ const express = require('express')
 const app = express()
 const cors = require("cors")
 
+const swaggerUi = require("swagger-ui-express")
+const swaggerSpec = require("./config/swagger")
+
+const dotenv = require("dotenv")
+const path = require("path")
+
+const envFile =
+  process.env.NODE_ENV === "test"
+    ? ".env.test"
+    : ".env"
+    
+dotenv.config({
+  path: path.resolve(process.cwd(), envFile),
+  // quiet: true,
+})
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:4173",
+    "http://localhost:3000",
     process.env.FRONTEND_URL
 ].filter(Boolean)
 
@@ -30,6 +46,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+)
 
 const authRoutes = require("./routes/auth.routes")
 const userRoutes = require("./routes/user.routes")
