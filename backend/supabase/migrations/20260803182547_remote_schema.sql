@@ -10,8 +10,6 @@ CREATE TABLE public.group_invites (
   group_id   bigint                   NOT NULL
 );
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.group_invites;
-
 ALTER TABLE public.group_invites
   ENABLE ROW LEVEL SECURITY;
 
