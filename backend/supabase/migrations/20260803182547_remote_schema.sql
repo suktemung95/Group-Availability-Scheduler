@@ -2,8 +2,6 @@
 -- Transaction mode: transactional
 -- Boundary reason: default
 
-DROP EXTENSION pg_net;
-
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT DELETE, INSERT, SELECT, UPDATE ON TABLES TO anon;
 
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT, USAGE ON SEQUENCES TO anon;
