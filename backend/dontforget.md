@@ -32,3 +32,6 @@ Overlap
 ✓ no overlap
 ✓ multiple intervals
 ✓ midnight boundary
+
+# documentation
+Add documentation validation to CI (automated testing to GH Actions)

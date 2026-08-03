@@ -1,17 +1,5 @@
 const app = require("./app")
 const port = process.env.PORT || 3000
-const dotenv = require("dotenv")
-const path = require("path")
-
-const envFile =
-  process.env.NODE_ENV === "test"
-    ? ".env.test"
-    : ".env"
-
-dotenv.config({
-  path: path.resolve(process.cwd(), envFile),
-  quiet: true,
-})
 
 if (
   process.env.NODE_ENV === "test" &&

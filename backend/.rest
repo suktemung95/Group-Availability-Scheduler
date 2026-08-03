@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
     "username": "LickWidFyre",
-    "password": "password"
+    "password": "password12"
 }
 ###
 GET http://localhost:3000/users/me

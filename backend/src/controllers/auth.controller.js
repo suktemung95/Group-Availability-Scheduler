@@ -27,7 +27,8 @@ exports.register = async (req, res) => {
     // return success
     return sendSuccess(res, 201, "Account registered successfully!", result[0])
   } catch (err) {
-    return sendError(res, 500, "Something went wrong")
+    console.log(err)
+    return sendError(res, 500, "Database Error")
   }
 };
 

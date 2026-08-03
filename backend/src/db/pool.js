@@ -2,9 +2,9 @@ const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString: process.env.SUPABASE_DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: process.env.NODE_ENV === "test"
+  ? false
+  : { rejectUnauthorized: false }
 });
 
 const runQuery = async (query, values) => {
