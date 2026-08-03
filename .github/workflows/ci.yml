@@ -12,6 +12,21 @@ jobs:
     name: Backend Tests
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: group_avail_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d group_avail_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     defaults:
       run:
         working-directory: backend
@@ -19,7 +34,7 @@ jobs:
     env:
       NODE_ENV: test
       IS_TEST_DATABASE: "true"
-      SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_TEST_DATABASE_URL }}
+      SUPABASE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/group_avail_test
       JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
 
     steps:
@@ -35,6 +50,16 @@ jobs:
 
       - name: Install backend dependencies
         run: npm ci
+
+      - name: Apply database migrations
+        shell: bash
+        run: |
+          for migration in supabase/migrations/*.sql; do
+            echo "Applying $migration"
+            psql "$SUPABASE_DATABASE_URL" \
+              --set ON_ERROR_STOP=1 \
+              --file "$migration"
+          done
 
       - name: Run backend tests
         run: npm test
